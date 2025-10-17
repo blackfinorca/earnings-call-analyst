@@ -1,4 +1,4 @@
-import earningsData from "../data/earnings_data.json";
+import earningsData from "../data/earnings_data_2025-10-17.json";
 
 const parseNumber = (value) => {
   if (value === null || value === undefined) return null;

@@ -187,7 +187,7 @@ const EarningsTable = ({
                     iconPosition="left"
                     iconSize={14}
                   >
-                    Generate
+                  Report
                   </Button>
                 </td>
               </tr>
@@ -225,7 +225,7 @@ const EarningsTable = ({
                 iconName="BarChart3"
                 iconSize={16}
               >
-                Generate
+                Report
               </Button>
             </div>
 

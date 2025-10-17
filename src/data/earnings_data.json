@@ -3,7 +3,7 @@
     "start_day": "2025-10-17",
     "end_day": "2025-10-23"
   },
-  "updated_at": "2025-10-17T12:48:50.599393+08:00",
+  "updated_at": "2025-10-17T13:33:59.594103+08:00",
   "source": "Yahoo Finance",
   "days": [
     {
@@ -19,9 +19,9 @@
           "surprise_pct": "4",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/AXP/",
-          "epsEstimate": null,
+          "epsEstimate": 14.25,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 323.12
         },
         {
           "symbol": "TFC",
@@ -31,9 +31,9 @@
           "surprise_pct": "0.99",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TFC/",
-          "epsEstimate": null,
+          "epsEstimate": 3.69,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 41.09
         },
         {
           "symbol": "SLB",
@@ -43,9 +43,9 @@
           "surprise_pct": "0.67",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/SLB/",
-          "epsEstimate": null,
+          "epsEstimate": 2.92,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "STT",
@@ -55,9 +55,9 @@
           "surprise_pct": "2.65",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/STT/",
-          "epsEstimate": null,
+          "epsEstimate": 8.9,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 112.95
         },
         {
           "symbol": "FITB",
@@ -67,9 +67,9 @@
           "surprise_pct": "0.86",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FITB/",
-          "epsEstimate": null,
+          "epsEstimate": 3.21,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 11.5370655
         },
         {
           "symbol": "HBAN",
@@ -79,9 +79,9 @@
           "surprise_pct": "0.38",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HBAN/",
-          "epsEstimate": null,
+          "epsEstimate": 1.34,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 15.37
         },
         {
           "symbol": "RF",
@@ -91,9 +91,9 @@
           "surprise_pct": "0.6",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RF/",
-          "epsEstimate": null,
+          "epsEstimate": 2.14,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "ALLY",
@@ -103,9 +103,9 @@
           "surprise_pct": "1.01",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ALLY/",
-          "epsEstimate": null,
+          "epsEstimate": 1.04,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "CMA",
@@ -115,9 +115,9 @@
           "surprise_pct": "1.28",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CMA/",
-          "epsEstimate": null,
+          "epsEstimate": 5.21,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 73.21
         },
         {
           "symbol": "ALV",
@@ -127,9 +127,9 @@
           "surprise_pct": "2.09",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ALV/",
-          "epsEstimate": null,
+          "epsEstimate": 9.12,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "WBS",
@@ -139,9 +139,9 @@
           "surprise_pct": "1.52",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WBS/",
-          "epsEstimate": null,
+          "epsEstimate": 4.92,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 54.1
         },
         {
           "symbol": "RBCAA",
@@ -151,9 +151,9 @@
           "surprise_pct": "1.41",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RBCAA/",
-          "epsEstimate": null,
+          "epsEstimate": 6.37,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 68.415
         },
         {
           "symbol": "MCBS",
@@ -163,9 +163,9 @@
           "surprise_pct": "0.67",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/MCBS/",
-          "epsEstimate": null,
+          "epsEstimate": 2.57,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 25.77
         },
         {
           "symbol": "HKD",
@@ -175,9 +175,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HKD/",
-          "epsEstimate": null,
+          "epsEstimate": 0.23,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 1.71
         },
         {
           "symbol": "OVLY",
@@ -187,9 +187,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/OVLY/",
-          "epsEstimate": null,
+          "epsEstimate": 2.92,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 25.41
         },
         {
           "symbol": "ATLO",
@@ -199,9 +199,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ATLO/",
-          "epsEstimate": null,
+          "epsEstimate": 1.53,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 19.68
         },
         {
           "symbol": "RCT",
@@ -211,9 +211,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RCT/",
-          "epsEstimate": null,
+          "epsEstimate": -1.15,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 1.55
         },
         {
           "symbol": "RCT",
@@ -223,9 +223,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RCT/",
-          "epsEstimate": null,
+          "epsEstimate": -1.15,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 1.55
         },
         {
           "symbol": "CLPS",
@@ -235,9 +235,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CLPS/",
-          "epsEstimate": null,
+          "epsEstimate": -0.05,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 1.27
         }
       ],
       "error": null
@@ -255,9 +255,9 @@
           "surprise_pct": "0.36",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/IBN/",
-          "epsEstimate": null,
+          "epsEstimate": 1.66,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 31.88
         },
         {
           "symbol": "HDB",
@@ -267,9 +267,9 @@
           "surprise_pct": "0.36",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HDB/",
-          "epsEstimate": null,
+          "epsEstimate": 1.48,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 35.44
         },
         {
           "symbol": "BROG",
@@ -306,9 +306,9 @@
           "surprise_pct": "1.1",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WRB/",
-          "epsEstimate": null,
+          "epsEstimate": 4.4,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 73.65
         },
         {
           "symbol": "STLD",
@@ -318,9 +318,9 @@
           "surprise_pct": "2.63",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/STLD/",
-          "epsEstimate": null,
+          "epsEstimate": 6.89,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 142.65
         },
         {
           "symbol": "SMMT",
@@ -330,9 +330,9 @@
           "surprise_pct": "-0.04",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/SMMT/",
-          "epsEstimate": null,
+          "epsEstimate": -1.01,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "PAC",
@@ -342,9 +342,9 @@
           "surprise_pct": "2.92",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PAC/",
-          "epsEstimate": null,
+          "epsEstimate": 10.04,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 19.525482
         },
         {
           "symbol": "CCK",
@@ -354,9 +354,9 @@
           "surprise_pct": "1.99",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CCK/",
-          "epsEstimate": null,
+          "epsEstimate": 4.75,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 12.516062
         },
         {
           "symbol": "AGNC",
@@ -366,9 +366,9 @@
           "surprise_pct": "0.39",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/AGNC/",
-          "epsEstimate": null,
+          "epsEstimate": 0.3,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 9.92
         },
         {
           "symbol": "WTFC",
@@ -378,9 +378,9 @@
           "surprise_pct": "2.71",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WTFC/",
-          "epsEstimate": null,
+          "epsEstimate": 10.57,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 10.816665
         },
         {
           "symbol": "ZION",
@@ -390,9 +390,9 @@
           "surprise_pct": "1.42",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ZION/",
-          "epsEstimate": null,
+          "epsEstimate": 5.48,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 46.93
         },
         {
           "symbol": "CLF",
@@ -402,9 +402,9 @@
           "surprise_pct": "-0.45",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CLF/",
-          "epsEstimate": null,
+          "epsEstimate": -3.41,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 13.56
         },
         {
           "symbol": "CADE",
@@ -414,9 +414,9 @@
           "surprise_pct": "0.77",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CADE/",
-          "epsEstimate": null,
+          "epsEstimate": 2.82,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "BOKF",
@@ -426,9 +426,9 @@
           "surprise_pct": "2.17",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/BOKF/",
-          "epsEstimate": null,
+          "epsEstimate": 8.36,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 104.65
         },
         {
           "symbol": "RLI",
@@ -438,9 +438,9 @@
           "surprise_pct": "0.7",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RLI/",
-          "epsEstimate": null,
+          "epsEstimate": 3.5,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 59.19
         },
         {
           "symbol": "SFBS",
@@ -450,9 +450,9 @@
           "surprise_pct": "1.34",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/SFBS/",
-          "epsEstimate": null,
+          "epsEstimate": 4.57,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 74.79
         },
         {
           "symbol": "DX",
@@ -462,9 +462,9 @@
           "surprise_pct": "0.26",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/DX/",
-          "epsEstimate": null,
+          "epsEstimate": 0.84,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "PFBC",
@@ -474,9 +474,9 @@
           "surprise_pct": "2.57",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PFBC/",
-          "epsEstimate": null,
+          "epsEstimate": 9.51,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 84.57
         },
         {
           "symbol": "HSTM",
@@ -486,9 +486,9 @@
           "surprise_pct": "0.18",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HSTM/",
-          "epsEstimate": null,
+          "epsEstimate": 0.67,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "HBT",
@@ -498,9 +498,9 @@
           "surprise_pct": "0.62",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HBT/",
-          "epsEstimate": null,
+          "epsEstimate": 2.42,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 9.384615
         },
         {
           "symbol": "TRST",
@@ -510,9 +510,9 @@
           "surprise_pct": "0.73",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TRST/",
-          "epsEstimate": null,
+          "epsEstimate": 2.81,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 34.65
         },
         {
           "symbol": "GNTY",
@@ -534,9 +534,9 @@
           "surprise_pct": "0.46",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WASH/",
-          "epsEstimate": null,
+          "epsEstimate": -1.59,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 25.45
         },
         {
           "symbol": "HBCP",
@@ -546,9 +546,9 @@
           "surprise_pct": "1.36",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HBCP/",
-          "epsEstimate": null,
+          "epsEstimate": 5.21,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 51.26
         },
         {
           "symbol": "RBB",
@@ -558,9 +558,9 @@
           "surprise_pct": "0.41",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RBB/",
-          "epsEstimate": null,
+          "epsEstimate": 1.3,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 16.83
         },
         {
           "symbol": "FUNC",
@@ -570,9 +570,9 @@
           "surprise_pct": "0.89",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FUNC/",
-          "epsEstimate": null,
+          "epsEstimate": 3.65,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 34.11
         },
         {
           "symbol": "FLXS",
@@ -582,9 +582,9 @@
           "surprise_pct": "0.78",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FLXS/",
-          "epsEstimate": null,
+          "epsEstimate": 3.55,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "ISTR",
@@ -594,9 +594,9 @@
           "surprise_pct": "0.46",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ISTR/",
-          "epsEstimate": null,
+          "epsEstimate": 2.24,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 21.54
         }
       ],
       "error": null
@@ -614,9 +614,9 @@
           "surprise_pct": "6.94",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NFLX/",
-          "epsEstimate": null,
+          "epsEstimate": 23.46,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "GE",
@@ -626,9 +626,9 @@
           "surprise_pct": "1.46",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/GE/",
-          "epsEstimate": null,
+          "epsEstimate": 7.02,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 50.76983
         },
         {
           "symbol": "KO",
@@ -638,9 +638,9 @@
           "surprise_pct": "0.78",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/KO/",
-          "epsEstimate": null,
+          "epsEstimate": 2.82,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 22.70559
         },
         {
           "symbol": "PM",
@@ -650,9 +650,9 @@
           "surprise_pct": "2.1",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PM/",
-          "epsEstimate": null,
+          "epsEstimate": 6.77,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 155.98
         },
         {
           "symbol": "RTX",
@@ -662,9 +662,9 @@
           "surprise_pct": "1.41",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RTX/",
-          "epsEstimate": null,
+          "epsEstimate": 4.55,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 157.05
         },
         {
           "symbol": "TXN",
@@ -674,9 +674,9 @@
           "surprise_pct": "1.48",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TXN/",
-          "epsEstimate": null,
+          "epsEstimate": 5.47,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 175.48
         },
         {
           "symbol": "ISRG",
@@ -686,9 +686,9 @@
           "surprise_pct": "1.99",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ISRG/",
-          "epsEstimate": null,
+          "epsEstimate": 7.17,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "DHR",
@@ -698,9 +698,9 @@
           "surprise_pct": "1.72",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/DHR/",
-          "epsEstimate": null,
+          "epsEstimate": 4.7,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 210.92
         },
         {
           "symbol": "COF",
@@ -710,9 +710,9 @@
           "surprise_pct": "4.36",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/COF/",
-          "epsEstimate": null,
+          "epsEstimate": 0.37,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 203.15
         },
         {
           "symbol": "LMT",
@@ -722,9 +722,9 @@
           "surprise_pct": "6.35",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/LMT/",
-          "epsEstimate": null,
+          "epsEstimate": 17.81,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 493.25
         },
         {
           "symbol": "CB",
@@ -734,9 +734,9 @@
           "surprise_pct": "6.18",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CB/",
-          "epsEstimate": null,
+          "epsEstimate": 22.64,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "NOC",
@@ -746,9 +746,9 @@
           "surprise_pct": "6.5",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NOC/",
-          "epsEstimate": null,
+          "epsEstimate": 27.07,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 598.98
         },
         {
           "symbol": "MMM",
@@ -758,9 +758,9 @@
           "surprise_pct": "2.07",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/MMM/",
-          "epsEstimate": null,
+          "epsEstimate": 7.21,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "ELV",
@@ -770,9 +770,9 @@
           "surprise_pct": "4.94",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ELV/",
-          "epsEstimate": null,
+          "epsEstimate": 23.57,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "GM",
@@ -782,9 +782,9 @@
           "surprise_pct": "2.32",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/GM/",
-          "epsEstimate": null,
+          "epsEstimate": 6.55,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "NDAQ",
@@ -794,9 +794,9 @@
           "surprise_pct": "0.85",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NDAQ/",
-          "epsEstimate": null,
+          "epsEstimate": 2.6,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 87.94
         },
         {
           "symbol": "PCAR",
@@ -806,9 +806,9 @@
           "surprise_pct": "1.17",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PCAR/",
-          "epsEstimate": null,
+          "epsEstimate": 5.83,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "WCN",
@@ -818,9 +818,9 @@
           "surprise_pct": "1.38",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WCN/",
-          "epsEstimate": null,
+          "epsEstimate": 2.48,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 170.84
         },
         {
           "symbol": "EQT",
@@ -830,9 +830,9 @@
           "surprise_pct": "0.4",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/EQT/",
-          "epsEstimate": null,
+          "epsEstimate": 1.9,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "EFX",
@@ -842,9 +842,9 @@
           "surprise_pct": "1.94",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/EFX/",
-          "epsEstimate": null,
+          "epsEstimate": 5.11,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "PHM",
@@ -854,9 +854,9 @@
           "surprise_pct": "2.9",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PHM/",
-          "epsEstimate": null,
+          "epsEstimate": 13.35,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 123.88
         },
         {
           "symbol": "DGX",
@@ -866,9 +866,9 @@
           "surprise_pct": "2.51",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/DGX/",
-          "epsEstimate": null,
+          "epsEstimate": 8.35,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "GPC",
@@ -878,9 +878,9 @@
           "surprise_pct": "1.99",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/GPC/",
-          "epsEstimate": null,
+          "epsEstimate": 5.81,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 17.451622
         },
         {
           "symbol": "HAL",
@@ -890,9 +890,9 @@
           "surprise_pct": "0.5",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HAL/",
-          "epsEstimate": null,
+          "epsEstimate": 2.13,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 21.82
         },
         {
           "symbol": "PNR",
@@ -902,9 +902,9 @@
           "surprise_pct": "1.18",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PNR/",
-          "epsEstimate": null,
+          "epsEstimate": 3.66,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         }
       ],
       "error": null
@@ -922,9 +922,9 @@
           "surprise_pct": "0.55",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TSLA/",
-          "epsEstimate": null,
+          "epsEstimate": 1.67,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 250.78966
         },
         {
           "symbol": "SAP",
@@ -934,9 +934,9 @@
           "surprise_pct": "1.69",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/SAP/",
-          "epsEstimate": null,
+          "epsEstimate": 6.45,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 38.185
         },
         {
           "symbol": "IBM",
@@ -946,9 +946,9 @@
           "surprise_pct": "2.44",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/IBM/",
-          "epsEstimate": null,
+          "epsEstimate": 6.21,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "TMO",
@@ -958,9 +958,9 @@
           "surprise_pct": "5.5",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TMO/",
-          "epsEstimate": null,
+          "epsEstimate": 17.28,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 23.856773
         },
         {
           "symbol": "T",
@@ -970,9 +970,9 @@
           "surprise_pct": "0.54",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/T/",
-          "epsEstimate": null,
+          "epsEstimate": 1.75,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 12.740712
         },
         {
           "symbol": "LRCX",
@@ -982,9 +982,9 @@
           "surprise_pct": "1.22",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/LRCX/",
-          "epsEstimate": null,
+          "epsEstimate": 4.14,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 142.37
         },
         {
           "symbol": "GEV",
@@ -994,9 +994,9 @@
           "surprise_pct": "1.85",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/GEV/",
-          "epsEstimate": null,
+          "epsEstimate": 4.15,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 602.0
         },
         {
           "symbol": "APH",
@@ -1006,9 +1006,9 @@
           "surprise_pct": "0.8",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/APH/",
-          "epsEstimate": null,
+          "epsEstimate": 2.51,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 127.36
         },
         {
           "symbol": "BSX",
@@ -1018,9 +1018,9 @@
           "surprise_pct": "0.71",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/BSX/",
-          "epsEstimate": null,
+          "epsEstimate": 1.68,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 97.78
         },
         {
           "symbol": "CME",
@@ -1030,9 +1030,9 @@
           "surprise_pct": "2.63",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CME/",
-          "epsEstimate": null,
+          "epsEstimate": 10.34,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 262.51
         },
         {
           "symbol": "ORLY",
@@ -1042,9 +1042,9 @@
           "surprise_pct": "0.83",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ORLY/",
-          "epsEstimate": null,
+          "epsEstimate": 2.79,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 101.17
         },
         {
           "symbol": "MCO",
@@ -1054,9 +1054,9 @@
           "surprise_pct": "3.66",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/MCO/",
-          "epsEstimate": null,
+          "epsEstimate": 11.76,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 33.24257
         },
         {
           "symbol": "BCS",
@@ -1066,9 +1066,9 @@
           "surprise_pct": "0.54",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/BCS/",
-          "epsEstimate": null,
+          "epsEstimate": 2.16,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 19.95
         },
         {
           "symbol": "VRT",
@@ -1078,9 +1078,9 @@
           "surprise_pct": "0.99",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/VRT/",
-          "epsEstimate": null,
+          "epsEstimate": 2.1,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 177.82
         },
         {
           "symbol": "URI",
@@ -1090,9 +1090,9 @@
           "surprise_pct": "12.32",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/URI/",
-          "epsEstimate": null,
+          "epsEstimate": 38.62,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 23.157675
         },
         {
           "symbol": "HLT",
@@ -1102,9 +1102,9 @@
           "surprise_pct": "2.05",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HLT/",
-          "epsEstimate": null,
+          "epsEstimate": 6.49,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "KMI",
@@ -1114,9 +1114,9 @@
           "surprise_pct": "0.29",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/KMI/",
-          "epsEstimate": null,
+          "epsEstimate": 1.22,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 27.21
         },
         {
           "symbol": "CCI",
@@ -1126,9 +1126,9 @@
           "surprise_pct": "0.49",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CCI/",
-          "epsEstimate": null,
+          "epsEstimate": -9.0,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "LVS",
@@ -1138,9 +1138,9 @@
           "surprise_pct": "0.62",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/LVS/",
-          "epsEstimate": null,
+          "epsEstimate": 1.98,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 49.14
         },
         {
           "symbol": "WAB",
@@ -1150,9 +1150,9 @@
           "surprise_pct": "2.29",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/WAB/",
-          "epsEstimate": null,
+          "epsEstimate": 6.72,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 193.61
         },
         {
           "symbol": "RJF",
@@ -1162,9 +1162,9 @@
           "surprise_pct": "2.83",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RJF/",
-          "epsEstimate": null,
+          "epsEstimate": 10.2,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 160.18
         },
         {
           "symbol": "FE",
@@ -1174,9 +1174,9 @@
           "surprise_pct": "0.75",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FE/",
-          "epsEstimate": null,
+          "epsEstimate": 2.27,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 46.79
         },
         {
           "symbol": "TDY",
@@ -1186,9 +1186,9 @@
           "surprise_pct": "5.47",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TDY/",
-          "epsEstimate": null,
+          "epsEstimate": 18.14,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 26.121887
         },
         {
           "symbol": "NTRS",
@@ -1198,9 +1198,9 @@
           "surprise_pct": "2.24",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NTRS/",
-          "epsEstimate": null,
+          "epsEstimate": 8.52,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 124.57
         },
         {
           "symbol": "TECK",
@@ -1210,9 +1210,9 @@
           "surprise_pct": "0.57",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TECK/",
-          "epsEstimate": null,
+          "epsEstimate": 0.32,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 44.3
         }
       ],
       "error": null
@@ -1230,9 +1230,9 @@
           "surprise_pct": "2.4",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TMUS/",
-          "epsEstimate": null,
+          "epsEstimate": 10.6,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 226.45
         },
         {
           "symbol": "BX",
@@ -1242,9 +1242,9 @@
           "surprise_pct": "1.23",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/BX/",
-          "epsEstimate": null,
+          "epsEstimate": 3.7,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 157.97
         },
         {
           "symbol": "INTC",
@@ -1254,9 +1254,9 @@
           "surprise_pct": "-",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/INTC/",
-          "epsEstimate": null,
+          "epsEstimate": -4.77,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 36.84
         },
         {
           "symbol": "UNP",
@@ -1266,9 +1266,9 @@
           "surprise_pct": "2.98",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/UNP/",
-          "epsEstimate": null,
+          "epsEstimate": 11.52,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 19.11193
         },
         {
           "symbol": "HON",
@@ -1278,9 +1278,9 @@
           "surprise_pct": "2.57",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/HON/",
-          "epsEstimate": null,
+          "epsEstimate": 8.8,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 203.17
         },
         {
           "symbol": "NEM",
@@ -1290,9 +1290,9 @@
           "surprise_pct": "1.42",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NEM/",
-          "epsEstimate": null,
+          "epsEstimate": 5.52,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 98.27
         },
         {
           "symbol": "LYG",
@@ -1302,9 +1302,9 @@
           "surprise_pct": "0.11",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/LYG/",
-          "epsEstimate": null,
+          "epsEstimate": 0.35,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 4.5
         },
         {
           "symbol": "NSC",
@@ -1314,9 +1314,9 @@
           "surprise_pct": "3.2",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NSC/",
-          "epsEstimate": null,
+          "epsEstimate": 14.8,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 23.28972
         },
         {
           "symbol": "DLR",
@@ -1326,9 +1326,9 @@
           "surprise_pct": "0.23",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/DLR/",
-          "epsEstimate": null,
+          "epsEstimate": 3.81,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 173.96
         },
         {
           "symbol": "FCX",
@@ -1338,9 +1338,9 @@
           "surprise_pct": "0.4",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FCX/",
-          "epsEstimate": null,
+          "epsEstimate": 1.32,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 41.7
         },
         {
           "symbol": "ROP",
@@ -1350,9 +1350,9 @@
           "surprise_pct": "5.11",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/ROP/",
-          "epsEstimate": null,
+          "epsEstimate": 14.25,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 500.08
         },
         {
           "symbol": "VLO",
@@ -1362,9 +1362,9 @@
           "surprise_pct": "3.05",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/VLO/",
-          "epsEstimate": null,
+          "epsEstimate": 2.49,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 156.39
         },
         {
           "symbol": "F",
@@ -1374,9 +1374,9 @@
           "surprise_pct": "0.35",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/F/",
-          "epsEstimate": null,
+          "epsEstimate": 0.78,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 11.74
         },
         {
           "symbol": "CBRE",
@@ -1386,9 +1386,9 @@
           "surprise_pct": "1.46",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CBRE/",
-          "epsEstimate": null,
+          "epsEstimate": 3.56,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 155.42
         },
         {
           "symbol": "BKR",
@@ -1398,9 +1398,9 @@
           "surprise_pct": "0.62",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/BKR/",
-          "epsEstimate": null,
+          "epsEstimate": 3.06,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 18.459019
         },
         {
           "symbol": "PCG",
@@ -1410,9 +1410,9 @@
           "surprise_pct": "0.41",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/PCG/",
-          "epsEstimate": null,
+          "epsEstimate": 1.08,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 16.5
         },
         {
           "symbol": "NOK",
@@ -1422,9 +1422,9 @@
           "surprise_pct": "0.06",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/NOK/",
-          "epsEstimate": null,
+          "epsEstimate": 0.19,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 5.68
         },
         {
           "symbol": "FIX",
@@ -1434,9 +1434,9 @@
           "surprise_pct": "6.29",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FIX/",
-          "epsEstimate": null,
+          "epsEstimate": 19.46,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 836.81
         },
         {
           "symbol": "TSCO",
@@ -1446,9 +1446,9 @@
           "surprise_pct": "0.48",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/TSCO/",
-          "epsEstimate": null,
+          "epsEstimate": 2.03,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 55.17
         },
         {
           "symbol": "STM",
@@ -1458,9 +1458,9 @@
           "surprise_pct": "0.22",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/STM/",
-          "epsEstimate": null,
+          "epsEstimate": 0.69,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 29.34
         },
         {
           "symbol": "CNP",
@@ -1470,9 +1470,9 @@
           "surprise_pct": "0.44",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/CNP/",
-          "epsEstimate": null,
+          "epsEstimate": 1.43,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 39.67
         },
         {
           "symbol": "VRSN",
@@ -1482,9 +1482,9 @@
           "surprise_pct": "2.24",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/VRSN/",
-          "epsEstimate": null,
+          "epsEstimate": 8.39,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 29.228083
         },
         {
           "symbol": "DOV",
@@ -1494,9 +1494,9 @@
           "surprise_pct": "2.51",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/DOV/",
-          "epsEstimate": null,
+          "epsEstimate": 7.76,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 165.0
         },
         {
           "symbol": "FCNCA",
@@ -1506,9 +1506,9 @@
           "surprise_pct": "41.49",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/FCNCA/",
-          "epsEstimate": null,
+          "epsEstimate": 169.27,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 2.0
         },
         {
           "symbol": "RCI",
@@ -1518,13 +1518,13 @@
           "surprise_pct": "1.28",
           "time": "-",
           "quote_url": "https://finance.yahoo.com/quote/RCI/",
-          "epsEstimate": null,
+          "epsEstimate": 1.99,
           "revenueEstimate": null,
-          "stockPrice": null
+          "stockPrice": 7.912277
         }
       ],
       "error": null
     }
   ],
-  "generated_at": "2025-10-17T12:49:52.293537+08:00"
+  "generated_at": "2025-10-17T14:36:07.071413+08:00"
 }

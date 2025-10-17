@@ -81,11 +81,13 @@ class DateWindow:
         }
 
 
-def parse_number(value: str | None) -> Optional[float]:
-    """Parse numeric string with optional K/M/B/T suffix to float."""
+def parse_number(value: float | int | str | None) -> Optional[float]:
+    """Parse numeric string or numeric value with optional K/M/B/T suffix to float."""
     if value is None:
         return None
-    cleaned = value.strip().replace(",", "")
+    if isinstance(value, (int, float)):
+        return float(value) if value == value else None  # handle NaN
+    cleaned = str(value).strip().replace(",", "")
     if not cleaned:
         return None
     multipliers = {"K": 1e3, "M": 1e6, "B": 1e9, "T": 1e12}

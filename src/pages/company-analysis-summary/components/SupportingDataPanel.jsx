@@ -3,6 +3,9 @@ import Icon from '../../../components/AppIcon';
 
 const SupportingDataPanel = ({ stockData }) => {
   const formatCurrency = (value) => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return "N/A";
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -12,12 +15,17 @@ const SupportingDataPanel = ({ stockData }) => {
   };
 
   const formatNumber = (value) => {
-    if (value >= 1e9) {
-      return (value / 1e9)?.toFixed(1) + 'B';
-    } else if (value >= 1e6) {
-      return (value / 1e6)?.toFixed(1) + 'M';
-    } else if (value >= 1e3) {
-      return (value / 1e3)?.toFixed(1) + 'K';
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return "N/A";
+    }
+    if (Math.abs(value) >= 1e9) {
+      return `${(value / 1e9)?.toFixed(1)}B`;
+    }
+    if (Math.abs(value) >= 1e6) {
+      return `${(value / 1e6)?.toFixed(1)}M`;
+    }
+    if (Math.abs(value) >= 1e3) {
+      return `${(value / 1e3)?.toFixed(1)}K`;
     }
     return value?.toString();
   };
@@ -38,8 +46,8 @@ const SupportingDataPanel = ({ stockData }) => {
     {
       title: 'Current Stock Price',
       value: formatCurrency(stockData?.currentPrice),
-      change: stockData?.priceChange,
-      changePercent: stockData?.priceChangePercent,
+      change: stockData?.priceChange ?? null,
+      changePercent: stockData?.priceChangePercent ?? null,
       icon: 'DollarSign',
       bgColor: 'bg-primary/10',
       iconColor: 'text-primary'
@@ -47,8 +55,8 @@ const SupportingDataPanel = ({ stockData }) => {
     {
       title: 'Trading Volume',
       value: formatNumber(stockData?.volume),
-      change: stockData?.volumeChange,
-      changePercent: stockData?.volumeChangePercent,
+      change: stockData?.volumeChange ?? null,
+      changePercent: stockData?.volumeChangePercent ?? null,
       subtitle: `Avg: ${formatNumber(stockData?.avgVolume)}`,
       icon: 'BarChart3',
       bgColor: 'bg-accent/10',
@@ -57,8 +65,8 @@ const SupportingDataPanel = ({ stockData }) => {
     {
       title: 'EPS Estimate',
       value: formatCurrency(stockData?.epsEstimate),
-      change: stockData?.epsChange,
-      changePercent: stockData?.epsChangePercent,
+      change: stockData?.epsChange ?? null,
+      changePercent: stockData?.epsChangePercent ?? null,
       subtitle: `Prev: ${formatCurrency(stockData?.prevEps)}`,
       icon: 'TrendingUp',
       bgColor: 'bg-success/10',
@@ -67,8 +75,8 @@ const SupportingDataPanel = ({ stockData }) => {
     {
       title: 'Revenue Estimate',
       value: `$${formatNumber(stockData?.revenueEstimate)}`,
-      change: stockData?.revenueChange,
-      changePercent: stockData?.revenueChangePercent,
+      change: stockData?.revenueChange ?? null,
+      changePercent: stockData?.revenueChangePercent ?? null,
       subtitle: `Prev: $${formatNumber(stockData?.prevRevenue)}`,
       icon: 'PieChart',
       bgColor: 'bg-warning/10',
@@ -99,7 +107,7 @@ const SupportingDataPanel = ({ stockData }) => {
                   strokeWidth={2}
                 />
               </div>
-              {card?.change !== undefined && (
+              {card?.change !== undefined && card?.change !== null && (
                 <div className={`flex items-center space-x-1 ${getChangeColor(card?.change)}`}>
                   <Icon 
                     name={getChangeIcon(card?.change)} 
@@ -125,7 +133,7 @@ const SupportingDataPanel = ({ stockData }) => {
                   {card?.subtitle}
                 </div>
               )}
-              {card?.change !== undefined && (
+              {card?.change !== undefined && card?.change !== null && (
                 <div className={`text-xs ${getChangeColor(card?.change)}`}>
                   {card?.change >= 0 ? '+' : ''}{formatCurrency(Math.abs(card?.change))} today
                 </div>
