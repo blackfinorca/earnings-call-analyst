@@ -1,108 +1,91 @@
-# React
+# Yahoo Earnings Calendar Service
 
-A modern React-based project utilizing the latest frontend technologies and tools for building responsive web applications.
+A lightweight FastAPI service that scrapes the Yahoo Finance earnings calendar for the next seven days (configurable), caches the results on disk for 24 hours, and exposes them through a REST endpoint that is safe to consume from front-end applications.
 
-## 🚀 Features
+## Features
 
-- **React 18** - React version with improved rendering and concurrent features
-- **Vite** - Lightning-fast build tool and development server
-- **Redux Toolkit** - State management with simplified Redux setup
-- **TailwindCSS** - Utility-first CSS framework with extensive customization
-- **React Router v6** - Declarative routing for React applications
-- **Data Visualization** - Integrated D3.js and Recharts for powerful data visualization
-- **Form Management** - React Hook Form for efficient form handling
-- **Animation** - Framer Motion for smooth UI animations
-- **Testing** - Jest and React Testing Library setup
+- **Playwright-powered scraper** (Chromium) with rotating user agents, randomized delays, and retry/backoff logic.
+- **Disk cache** (`./cache/…`) to avoid unnecessary scraping for 24 hours per date range.
+- **FastAPI endpoint** (`GET /api/earnings`) with optional `start` and `days` query parameters.
+- **APScheduler** refresh job every day at 06:00 Asia/Singapore that pre-warms the default (today → +7 days) cache.
+- **Structured JSON response** with daily breakdown, row counts, and error reporting.
 
-## 📋 Prerequisites
-
-- Node.js (v14.x or higher)
-- npm or yarn
-
-## 🛠️ Installation
-
-1. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-   
-2. Start the development server:
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
-
-## 📁 Project Structure
+## Project layout
 
 ```
-react_app/
-├── public/             # Static assets
-├── src/
-│   ├── components/     # Reusable UI components
-│   ├── pages/          # Page components
-│   ├── styles/         # Global styles and Tailwind configuration
-│   ├── App.jsx         # Main application component
-│   ├── Routes.jsx      # Application routes
-│   └── index.jsx       # Application entry point
-├── .env                # Environment variables
-├── index.html          # HTML template
-├── package.json        # Project dependencies and scripts
-├── tailwind.config.js  # Tailwind CSS configuration
-└── vite.config.js      # Vite configuration
+app/
+  cache.py       # Cache helpers
+  main.py        # FastAPI app, scheduler
+  scraper.py     # Playwright Yahoo scraper
+  utils.py       # Timezone & helper utilities
+cache/           # Cache files created at runtime
+requirements.txt
+.env.example
+tests/
 ```
 
-## 🧩 Adding Routes
-
-To add new routes to the application, update the `Routes.jsx` file:
-
-```jsx
-import { useRoutes } from "react-router-dom";
-import HomePage from "pages/HomePage";
-import AboutPage from "pages/AboutPage";
-
-const ProjectRoutes = () => {
-  let element = useRoutes([
-    { path: "/", element: <HomePage /> },
-    { path: "/about", element: <AboutPage /> },
-    // Add more routes as needed
-  ]);
-
-  return element;
-};
-```
-
-## 🎨 Styling
-
-This project uses Tailwind CSS for styling. The configuration includes:
-
-- Forms plugin for form styling
-- Typography plugin for text styling
-- Aspect ratio plugin for responsive elements
-- Container queries for component-specific responsive design
-- Fluid typography for responsive text
-- Animation utilities
-
-## 📱 Responsive Design
-
-The app is built with responsive design using Tailwind CSS breakpoints.
-
-
-## 📦 Deployment
-
-Build the application for production:
+## Setup
 
 ```bash
-npm run build
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium
 ```
 
-## 🙏 Acknowledgments
+Create an `.env` file if you need to override defaults:
 
-- Built with [Rocket.new](https://rocket.new)
-- Powered by React and Vite
-- Styled with Tailwind CSS
+```
+PORT=3000
+TZ=Asia/Singapore
+```
 
-Built with ❤️ on Rocket.new
-# earnings-call-analyst
+## Running locally
+
+Collect everything via CLI scripts and consume the generated JSON directly:
+
+```bash
+# 1. Refresh Yahoo earnings calendar (requires Playwright scrape)
+python -m app.refresh
+
+# 2. (Optional) Enrich tickers with current price/EPS/revenue via yfinance
+python -m app.enrich --force
+
+# 3. Compose the single JSON the frontend reads
+python -m app.generate
+```
+
+The final consolidated file lives at `src/data/earnings_data.json`.
+
+### Front-end usage
+
+```js
+import earnings from '../data/earnings_data.json';
+```
+
+The dashboard flattens the `days` array from this JSON and renders it—no API server required.
+
+## Enrichment job
+
+Generate per-ticker price and estimate data using yfinance:
+
+```bash
+python -m app.enrich
+```
+
+Optional flags:
+
+- `--force` – ignore existing enrichment cache and rescrape.
+- `--max-concurrency N` – adjust concurrency (default 3 for yfinance lookups).
+
+Output is written to `./cache/yahoo_enriched_<YYYY-MM-DD>.json`.
+
+## Testing
+
+Run the lightweight test suite:
+
+```bash
+pytest
+```
+
+Tests cover cache freshness logic, the local number parser, and the supporting helpers.

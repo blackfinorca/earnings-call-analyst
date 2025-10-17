@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core Palette – professional blues with energetic accents */
+    --color-background: #F1F5FB; /* Soft arctic white */
+    --color-foreground: #1B2545; /* Deep navy text */
+    --color-border: #D8E0EC; /* Cool mist border */
+    --color-input: #FFFFFF;
+    --color-ring: #3C82F6; /* Vivid royal blue */
+
+    /* Elevated surfaces */
+    --color-card: #FFFFFF;
+    --color-card-foreground: #1B2545;
+
+    /* Popover palette */
+    --color-popover: #FFFFFF;
+    --color-popover-foreground: #1B2545;
+
+    /* Muted neutrals */
+    --color-muted: #E6ECF6;
+    --color-muted-foreground: #5F6F8F;
+
+    /* Brand colors */
+    --color-primary: #2F6AED; /* Executive blue */
+    --color-primary-foreground: #FFFFFF;
+    --color-secondary: #475569; /* Slate support tone */
+    --color-secondary-foreground: #FFFFFF;
+    --color-accent: #0FB7BA; /* Teal highlight */
+    --color-accent-foreground: #FFFFFF;
+
+    /* Status colors */
+    --color-destructive: #E04F4F;
+    --color-destructive-foreground: #FFFFFF;
+    --color-success: #2BB673;
+    --color-success-foreground: #FFFFFF;
+    --color-warning: #F4A62A;
+    --color-warning-foreground: #3B2E09;
+    --color-error: #E04F4F;
+    --color-error-foreground: #FFFFFF;
+
+    /* Surface + typography */
+    --color-surface: #FFFFFF;
+    --color-text-primary: #18203A;
+    --color-text-secondary: #546589;
+
+    /* Shadows tuned for depth */
+    --shadow-sm: 0 4px 10px -6px rgb(11 36 79 / 0.25);
+    --shadow-default: 0 10px 25px -10px rgb(17 53 102 / 0.35);
+    --shadow-md: 0 18px 32px -18px rgb(24 56 112 / 0.4);
+    --shadow-lg: 0 30px 45px -25px rgb(15 42 90 / 0.45);
+    
+    /* Border Radius */
+    --radius: 8px;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-image:
+      radial-gradient(60% 120% at 0% 100%, rgba(47, 106, 237, 0.22) 0%, transparent 70%),
+      radial-gradient(45% 90% at 100% 0%, rgba(15, 183, 186, 0.18) 0%, transparent 60%);
+    background-attachment: fixed;
+  }
+  
+  /* Typography Base Styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  body, p, span, div {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  
+  .font-mono, code, pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+  }
+  
+  /* Smooth transitions for micro-interactions */
+  * {
+    transition: color 200ms ease-out, background-color 200ms ease-out, border-color 200ms ease-out, opacity 200ms ease-out, transform 200ms ease-out;
+  }
+  
+  /* Glass morphism utility with modern touch */
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(79, 70, 229, 0.1);
+  }
+  
+  /* Loading shimmer animation */
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+  
+  .shimmer {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Modern gradient overlay */
+  .gradient-overlay {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  }
+}
