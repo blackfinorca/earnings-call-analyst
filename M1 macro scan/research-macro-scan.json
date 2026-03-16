@@ -1,0 +1,663 @@
+{
+  "function": "research-macro-scan",
+  "generated_at": "2026-03-16T15:23:47.378270+00:00",
+  "providers": [
+    "Financial Modeling Prep",
+    "Yahoo Finance",
+    "Trading Economics"
+  ],
+  "free_tier_daily_limit": 249,
+  "calls_made_this_run": 0,
+  "cache_hits_this_run": 11,
+  "calls_used_today": 19,
+  "secondary_calls_made_this_run": 0,
+  "secondary_cache_hits_this_run": 2,
+  "tertiary_calls_made_this_run": 0,
+  "tertiary_cache_hits_this_run": 3,
+  "provider_outputs": [
+    {
+      "provider": "Financial Modeling Prep",
+      "calls_made_this_run": 0,
+      "cache_hits_this_run": 11,
+      "row_keys": [
+        "S&P 500",
+        "Nasdaq",
+        "Russell 2000",
+        "VIX",
+        "Fed Funds Rate",
+        "10Y Treasury Yield",
+        "2Y Treasury Yield",
+        "10Y-2Y Spread",
+        "CPI YoY",
+        "Core PCE YoY",
+        "ISM Manufacturing PMI",
+        "ISM Services PMI",
+        "Unemployment Rate",
+        "Initial Jobless Claims",
+        "WTI Crude Oil",
+        "Gold Price",
+        "DXY Dollar Index",
+        "US GDP"
+      ],
+      "limitations": [
+        "Core PCE YoY",
+        "DXY Dollar Index",
+        "ISM Manufacturing PMI",
+        "ISM Services PMI",
+        "WTI Crude Oil"
+      ],
+      "rows": [
+        {
+          "data_point": "S&P 500",
+          "current_value": "6,698.77",
+          "prior_reading": "6,632.19 (previous close)",
+          "direction": "up",
+          "signal_implication": "Strong upside move; +1.00% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EGSPC",
+            "as_of": "2026-03-16T15:13:05+00:00"
+          }
+        },
+        {
+          "data_point": "Nasdaq",
+          "current_value": "22,377.54",
+          "prior_reading": "22,105.36 (previous close)",
+          "direction": "up",
+          "signal_implication": "Strong upside move; +1.23% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EIXIC",
+            "as_of": "2026-03-16T15:13:02+00:00"
+          }
+        },
+        {
+          "data_point": "Russell 2000",
+          "current_value": "2,512.6",
+          "prior_reading": "2,480.05 (previous close)",
+          "direction": "up",
+          "signal_implication": "Strong upside move; +1.31% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=%5ERUT",
+            "as_of": "2026-03-16T15:13:05+00:00"
+          }
+        },
+        {
+          "data_point": "VIX",
+          "current_value": "24.16",
+          "prior_reading": "27.19 (previous close)",
+          "direction": "down",
+          "signal_implication": "Volatility above normal; -11.14% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EVIX",
+            "as_of": "2026-03-16T15:13:01+00:00"
+          }
+        },
+        {
+          "data_point": "Fed Funds Rate",
+          "current_value": "3.50-3.75%",
+          "prior_reading": "3.50-3.75%",
+          "direction": "flat",
+          "signal_implication": "Implied target range unchanged from the prior reading.",
+          "status": "derived",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=federalFunds&limit=12",
+            "latest_effective_rate": "3.64%",
+            "note": "Target band inferred from the effective federal funds rate because FMP free tier exposes the effective series, not the target range."
+          }
+        },
+        {
+          "data_point": "10Y Treasury Yield",
+          "current_value": "4.28%",
+          "prior_reading": "4.15% (one week earlier)",
+          "direction": "up",
+          "signal_implication": "Higher versus one week earlier by +13 bps for the 10Y.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/treasury-rates",
+            "url": "https://financialmodelingprep.com/stable/treasury-rates",
+            "as_of": "2026-03-13"
+          }
+        },
+        {
+          "data_point": "2Y Treasury Yield",
+          "current_value": "3.73%",
+          "prior_reading": "3.56% (one week earlier)",
+          "direction": "up",
+          "signal_implication": "Higher versus one week earlier by +17 bps for the 2Y.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/treasury-rates",
+            "url": "https://financialmodelingprep.com/stable/treasury-rates",
+            "as_of": "2026-03-13"
+          }
+        },
+        {
+          "data_point": "10Y-2Y Spread",
+          "current_value": "+0.55%",
+          "prior_reading": "+0.59% (one week earlier)",
+          "direction": "down",
+          "signal_implication": "Yield curve positive with a normal upward slope.",
+          "status": "derived",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/treasury-rates",
+            "url": "https://financialmodelingprep.com/stable/treasury-rates",
+            "as_of": "2026-03-13"
+          }
+        },
+        {
+          "data_point": "CPI YoY (Feb 2026)",
+          "current_value": "2.43%",
+          "prior_reading": "2.39% (Jan 2026)",
+          "direction": "flat",
+          "signal_implication": "Inflation remains above the Fed's 2% target.",
+          "status": "derived",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=CPI&from=2024-01-01&to=2026-03-16",
+            "note": "YoY CPI is derived from the monthly CPI index because FMP free tier returns the index level rather than the precomputed YoY rate."
+          }
+        },
+        {
+          "data_point": "Core PCE YoY",
+          "current_value": null,
+          "prior_reading": null,
+          "direction": null,
+          "signal_implication": "Unavailable on the tested FMP free-tier endpoints.",
+          "status": "unavailable",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=corePCE"
+          }
+        },
+        {
+          "data_point": "ISM Manufacturing PMI",
+          "current_value": null,
+          "prior_reading": null,
+          "direction": null,
+          "signal_implication": "Unavailable on the tested FMP free-tier endpoints.",
+          "status": "unavailable",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=manufacturingPMI"
+          }
+        },
+        {
+          "data_point": "ISM Services PMI",
+          "current_value": null,
+          "prior_reading": null,
+          "direction": null,
+          "signal_implication": "Unavailable on the tested FMP free-tier endpoints.",
+          "status": "unavailable",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=servicesPMI"
+          }
+        },
+        {
+          "data_point": "Unemployment Rate (Feb 2026)",
+          "current_value": "4.40%",
+          "prior_reading": "4.30% (Jan 2026)",
+          "direction": "up",
+          "signal_implication": "Labor market is stable but softer than peak-tight conditions.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=unemploymentRate&limit=12"
+          }
+        },
+        {
+          "data_point": "Initial Jobless Claims (2026-03-07)",
+          "current_value": "213K",
+          "prior_reading": "214K (prior week)",
+          "direction": "down",
+          "signal_implication": "Claims remain near cycle lows with limited layoff pressure.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=initialClaims&limit=8"
+          }
+        },
+        {
+          "data_point": "WTI Crude Oil",
+          "current_value": null,
+          "prior_reading": null,
+          "direction": null,
+          "signal_implication": "CLUSD is paywalled on the tested FMP free-tier endpoints. Yahoo or another provider can replace this row during merge.",
+          "status": "unavailable",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=CLUSD"
+          }
+        },
+        {
+          "data_point": "Gold Price",
+          "current_value": "$5,002.00/oz",
+          "prior_reading": "$5,061.70/oz (previous close)",
+          "direction": "down",
+          "signal_implication": "Gold remains above $5,000 per ounce; -1.18% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=GCUSD",
+            "as_of": "2026-03-16T15:03:07+00:00"
+          }
+        },
+        {
+          "data_point": "DXY Dollar Index",
+          "current_value": null,
+          "prior_reading": null,
+          "direction": null,
+          "signal_implication": "DX-Y.NYB is paywalled on the tested FMP free-tier endpoints. Yahoo or another provider can replace this row during merge.",
+          "status": "unavailable",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/quote",
+            "url": "https://financialmodelingprep.com/stable/quote?symbol=DX-Y.NYB"
+          }
+        },
+        {
+          "data_point": "US GDP Q4 2025 (annualized, derived)",
+          "current_value": "0.65%",
+          "prior_reading": "4.38% (Q3 2025)",
+          "direction": "down",
+          "signal_implication": "Growth is weak on a quarterly annualized basis. Derived from the quarterly real GDP series; estimate revision history is not exposed on FMP free tier.",
+          "status": "derived",
+          "source": {
+            "provider": "Financial Modeling Prep",
+            "path": "/economic-indicators",
+            "url": "https://financialmodelingprep.com/stable/economic-indicators?name=realGDP&limit=4",
+            "note": "Quarterly annualized growth derived from the latest two real GDP observations."
+          }
+        }
+      ],
+      "daily_limit": 249,
+      "calls_used_today": 19
+    },
+    {
+      "provider": "Yahoo Finance",
+      "calls_made_this_run": 0,
+      "cache_hits_this_run": 2,
+      "row_keys": [
+        "WTI Crude Oil",
+        "DXY Dollar Index"
+      ],
+      "limitations": [],
+      "rows": [
+        {
+          "data_point": "WTI Crude Oil",
+          "current_value": "$95.35/bbl",
+          "prior_reading": "$87.25/bbl (previous close)",
+          "direction": "up",
+          "signal_implication": "Oil is elevated; +9.28% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Yahoo Finance",
+            "path": "/v8/finance/chart/CL=F",
+            "url": "https://query2.finance.yahoo.com/v8/finance/chart/CL%3DF?interval=1d&range=5d",
+            "as_of": "2026-03-16T15:09:55+00:00"
+          }
+        },
+        {
+          "data_point": "DXY Dollar Index",
+          "current_value": "98.796",
+          "prior_reading": "98.77 (previous close)",
+          "direction": "up",
+          "signal_implication": "Dollar strengthening; +0.03% versus the prior close.",
+          "status": "ok",
+          "source": {
+            "provider": "Yahoo Finance",
+            "path": "/v8/finance/chart/DX-Y.NYB",
+            "url": "https://query2.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
+            "as_of": "2026-03-10T00:31:42+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "Trading Economics",
+      "calls_made_this_run": 0,
+      "cache_hits_this_run": 3,
+      "row_keys": [
+        "Core PCE YoY",
+        "ISM Manufacturing PMI",
+        "ISM Services PMI"
+      ],
+      "limitations": [],
+      "rows": [
+        {
+          "data_point": "Core PCE YoY (Jan 2026)",
+          "current_value": "3.10%",
+          "prior_reading": "3.00% (Dec 2025)",
+          "direction": "up",
+          "signal_implication": "Fed's preferred inflation gauge moved higher. It remains well above the Fed's target.",
+          "status": "ok",
+          "source": {
+            "provider": "Trading Economics",
+            "path": "/united-states/core-pce-price-index-annual-change",
+            "url": "https://tradingeconomics.com/united-states/core-pce-price-index-annual-change",
+            "as_of": "2026-02-28T00:00:00+00:00",
+            "note": "Parsed from the page meta description."
+          }
+        },
+        {
+          "data_point": "ISM Manufacturing PMI (Feb 2026)",
+          "current_value": "51.6",
+          "prior_reading": "52.4 (Jan 2026)",
+          "direction": "down",
+          "signal_implication": "Manufacturing activity is still expanding. The pace slowed versus the prior month.",
+          "status": "ok",
+          "source": {
+            "provider": "Trading Economics",
+            "path": "/united-states/manufacturing-pmi",
+            "url": "https://tradingeconomics.com/united-states/manufacturing-pmi",
+            "as_of": "2026-02-28T00:00:00+00:00",
+            "note": "Parsed from the page meta description."
+          }
+        },
+        {
+          "data_point": "ISM Services PMI (Feb 2026)",
+          "current_value": "56.1",
+          "prior_reading": "53.8 (Jan 2026)",
+          "direction": "up",
+          "signal_implication": "Services activity is still expanding. The pace improved versus the prior month.",
+          "status": "ok",
+          "source": {
+            "provider": "Trading Economics",
+            "path": "/united-states/non-manufacturing-pmi",
+            "url": "https://tradingeconomics.com/united-states/non-manufacturing-pmi",
+            "as_of": "2026-02-28T00:00:00+00:00",
+            "note": "Parsed from the page meta description."
+          }
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "data_point": "S&P 500",
+      "current_value": "6,698.77",
+      "prior_reading": "6,632.19 (previous close)",
+      "direction": "up",
+      "signal_implication": "Strong upside move; +1.00% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/quote",
+        "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EGSPC",
+        "as_of": "2026-03-16T15:13:05+00:00"
+      }
+    },
+    {
+      "data_point": "Nasdaq",
+      "current_value": "22,377.54",
+      "prior_reading": "22,105.36 (previous close)",
+      "direction": "up",
+      "signal_implication": "Strong upside move; +1.23% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/quote",
+        "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EIXIC",
+        "as_of": "2026-03-16T15:13:02+00:00"
+      }
+    },
+    {
+      "data_point": "Russell 2000",
+      "current_value": "2,512.6",
+      "prior_reading": "2,480.05 (previous close)",
+      "direction": "up",
+      "signal_implication": "Strong upside move; +1.31% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/quote",
+        "url": "https://financialmodelingprep.com/stable/quote?symbol=%5ERUT",
+        "as_of": "2026-03-16T15:13:05+00:00"
+      }
+    },
+    {
+      "data_point": "VIX",
+      "current_value": "24.16",
+      "prior_reading": "27.19 (previous close)",
+      "direction": "down",
+      "signal_implication": "Volatility above normal; -11.14% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/quote",
+        "url": "https://financialmodelingprep.com/stable/quote?symbol=%5EVIX",
+        "as_of": "2026-03-16T15:13:01+00:00"
+      }
+    },
+    {
+      "data_point": "Fed Funds Rate",
+      "current_value": "3.50-3.75%",
+      "prior_reading": "3.50-3.75%",
+      "direction": "flat",
+      "signal_implication": "Implied target range unchanged from the prior reading.",
+      "status": "derived",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/economic-indicators",
+        "url": "https://financialmodelingprep.com/stable/economic-indicators?name=federalFunds&limit=12",
+        "latest_effective_rate": "3.64%",
+        "note": "Target band inferred from the effective federal funds rate because FMP free tier exposes the effective series, not the target range."
+      }
+    },
+    {
+      "data_point": "10Y Treasury Yield",
+      "current_value": "4.28%",
+      "prior_reading": "4.15% (one week earlier)",
+      "direction": "up",
+      "signal_implication": "Higher versus one week earlier by +13 bps for the 10Y.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/treasury-rates",
+        "url": "https://financialmodelingprep.com/stable/treasury-rates",
+        "as_of": "2026-03-13"
+      }
+    },
+    {
+      "data_point": "2Y Treasury Yield",
+      "current_value": "3.73%",
+      "prior_reading": "3.56% (one week earlier)",
+      "direction": "up",
+      "signal_implication": "Higher versus one week earlier by +17 bps for the 2Y.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/treasury-rates",
+        "url": "https://financialmodelingprep.com/stable/treasury-rates",
+        "as_of": "2026-03-13"
+      }
+    },
+    {
+      "data_point": "10Y-2Y Spread",
+      "current_value": "+0.55%",
+      "prior_reading": "+0.59% (one week earlier)",
+      "direction": "down",
+      "signal_implication": "Yield curve positive with a normal upward slope.",
+      "status": "derived",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/treasury-rates",
+        "url": "https://financialmodelingprep.com/stable/treasury-rates",
+        "as_of": "2026-03-13"
+      }
+    },
+    {
+      "data_point": "CPI YoY (Feb 2026)",
+      "current_value": "2.43%",
+      "prior_reading": "2.39% (Jan 2026)",
+      "direction": "flat",
+      "signal_implication": "Inflation remains above the Fed's 2% target.",
+      "status": "derived",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/economic-indicators",
+        "url": "https://financialmodelingprep.com/stable/economic-indicators?name=CPI&from=2024-01-01&to=2026-03-16",
+        "note": "YoY CPI is derived from the monthly CPI index because FMP free tier returns the index level rather than the precomputed YoY rate."
+      }
+    },
+    {
+      "data_point": "Core PCE YoY (Jan 2026)",
+      "current_value": "3.10%",
+      "prior_reading": "3.00% (Dec 2025)",
+      "direction": "up",
+      "signal_implication": "Fed's preferred inflation gauge moved higher. It remains well above the Fed's target.",
+      "status": "ok",
+      "source": {
+        "provider": "Trading Economics",
+        "path": "/united-states/core-pce-price-index-annual-change",
+        "url": "https://tradingeconomics.com/united-states/core-pce-price-index-annual-change",
+        "as_of": "2026-02-28T00:00:00+00:00",
+        "note": "Parsed from the page meta description."
+      }
+    },
+    {
+      "data_point": "ISM Manufacturing PMI (Feb 2026)",
+      "current_value": "51.6",
+      "prior_reading": "52.4 (Jan 2026)",
+      "direction": "down",
+      "signal_implication": "Manufacturing activity is still expanding. The pace slowed versus the prior month.",
+      "status": "ok",
+      "source": {
+        "provider": "Trading Economics",
+        "path": "/united-states/manufacturing-pmi",
+        "url": "https://tradingeconomics.com/united-states/manufacturing-pmi",
+        "as_of": "2026-02-28T00:00:00+00:00",
+        "note": "Parsed from the page meta description."
+      }
+    },
+    {
+      "data_point": "ISM Services PMI (Feb 2026)",
+      "current_value": "56.1",
+      "prior_reading": "53.8 (Jan 2026)",
+      "direction": "up",
+      "signal_implication": "Services activity is still expanding. The pace improved versus the prior month.",
+      "status": "ok",
+      "source": {
+        "provider": "Trading Economics",
+        "path": "/united-states/non-manufacturing-pmi",
+        "url": "https://tradingeconomics.com/united-states/non-manufacturing-pmi",
+        "as_of": "2026-02-28T00:00:00+00:00",
+        "note": "Parsed from the page meta description."
+      }
+    },
+    {
+      "data_point": "Unemployment Rate (Feb 2026)",
+      "current_value": "4.40%",
+      "prior_reading": "4.30% (Jan 2026)",
+      "direction": "up",
+      "signal_implication": "Labor market is stable but softer than peak-tight conditions.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/economic-indicators",
+        "url": "https://financialmodelingprep.com/stable/economic-indicators?name=unemploymentRate&limit=12"
+      }
+    },
+    {
+      "data_point": "Initial Jobless Claims (2026-03-07)",
+      "current_value": "213K",
+      "prior_reading": "214K (prior week)",
+      "direction": "down",
+      "signal_implication": "Claims remain near cycle lows with limited layoff pressure.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/economic-indicators",
+        "url": "https://financialmodelingprep.com/stable/economic-indicators?name=initialClaims&limit=8"
+      }
+    },
+    {
+      "data_point": "WTI Crude Oil",
+      "current_value": "$95.35/bbl",
+      "prior_reading": "$87.25/bbl (previous close)",
+      "direction": "up",
+      "signal_implication": "Oil is elevated; +9.28% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance",
+        "path": "/v8/finance/chart/CL=F",
+        "url": "https://query2.finance.yahoo.com/v8/finance/chart/CL%3DF?interval=1d&range=5d",
+        "as_of": "2026-03-16T15:09:55+00:00"
+      }
+    },
+    {
+      "data_point": "Gold Price",
+      "current_value": "$5,002.00/oz",
+      "prior_reading": "$5,061.70/oz (previous close)",
+      "direction": "down",
+      "signal_implication": "Gold remains above $5,000 per ounce; -1.18% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/quote",
+        "url": "https://financialmodelingprep.com/stable/quote?symbol=GCUSD",
+        "as_of": "2026-03-16T15:03:07+00:00"
+      }
+    },
+    {
+      "data_point": "DXY Dollar Index",
+      "current_value": "98.796",
+      "prior_reading": "98.77 (previous close)",
+      "direction": "up",
+      "signal_implication": "Dollar strengthening; +0.03% versus the prior close.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance",
+        "path": "/v8/finance/chart/DX-Y.NYB",
+        "url": "https://query2.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
+        "as_of": "2026-03-10T00:31:42+00:00"
+      }
+    },
+    {
+      "data_point": "US GDP Q4 2025 (annualized, derived)",
+      "current_value": "0.65%",
+      "prior_reading": "4.38% (Q3 2025)",
+      "direction": "down",
+      "signal_implication": "Growth is weak on a quarterly annualized basis. Derived from the quarterly real GDP series; estimate revision history is not exposed on FMP free tier.",
+      "status": "derived",
+      "source": {
+        "provider": "Financial Modeling Prep",
+        "path": "/economic-indicators",
+        "url": "https://financialmodelingprep.com/stable/economic-indicators?name=realGDP&limit=4",
+        "note": "Quarterly annualized growth derived from the latest two real GDP observations."
+      }
+    }
+  ],
+  "limitations": [],
+  "proxy_rows": [],
+  "derived_rows": [
+    "Fed Funds Rate",
+    "10Y-2Y Spread",
+    "CPI YoY (Feb 2026)",
+    "US GDP Q4 2025 (annualized, derived)"
+  ]
+}
