@@ -1,42 +1,9 @@
-import { useState, useMemo } from "react";
-
-/*══════════════════════════════════════════════════════════════════════════════
-INVESTMENT STRATEGY RESEARCH ARCHITECTURE v1.0 — COMPREHENSION-FIRST
-
-PURPOSE:
-This prompt architecture is designed to produce investment strategy research
-that is rigorous without being impenetrable. The target reader is a smart,
-curious generalist — not a CFA charterholder. They should come away with a
-clear investment thesis, understand the risks, and be able to explain the
-opportunity to someone else.
-
-LAYER STRUCTURE:
-- Layer 1: Writing Philosophy       ← YOU ARE HERE
-- Layer 2: Comprehension Gates      ← coming next
-- Layer 3: Section Architecture     ← coming next
-- Layer 4: Verification Framework   ← coming next
-══════════════════════════════════════════════════════════════════════════════*/
-
-const C = {
-  bg: "#F7F6F3", panel: "#FFFFFF", card: "#FFFFFF", cardHover: "#F3F2EF",
-  border: "#E7E5E0", borderActive: "#D6D2CA", text: "#37352F",
-  muted: "#787774", dim: "#9B9A97", white: "#191919",
-  ai: "#2563EB", user: "#7C3AED", doc: "#C77D1A", web: "#15803D",
-  verify: "#D9485F", cyan: "#0891B2", purple: "#8B5CF6",
-  lime: "#65A30D", orange: "#EA580C", gold: "#CA8A04",
-  write: "#2563EB",
-};
-
-/*══════════════════════════════════════════════════════════════════════════════
-LAYER 1: WRITING PHILOSOPHY
-This is the MOST IMPORTANT part of the architecture.
-Every section must follow these rules BEFORE any verification check runs.
-Investment research fails readers in two ways: too much jargon, or too much
-data without meaning. These principles fix both.
-══════════════════════════════════════════════════════════════════════════════*/
 const writingPhilosophy = {
+  layer: 1,
   id: "WPH",
-  name: "Writing & Comprehension Philosophy",
+  name: "Layer 1 Writing Philosophy",
+  purpose:
+    "This file contains only the Layer 1 writing philosophy used to guide downstream prompts. It is structured to be passed directly into another AI prompt as reference material.",
   coreMandate: "Write for a smart generalist who has never read an earnings call or a 10-K. Every investment term, ratio, and concept must be earned — explained before it is used. The reader should finish each section able to repeat the key idea to a friend.",
   principles: [
     {
@@ -171,3 +138,5 @@ const writingPhilosophy = {
     },
   ],
 };
+
+export default writingPhilosophy;
