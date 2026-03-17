@@ -1,1 +1,0 @@
-frontend/src/prototypes/investment-strategy-research.jsx

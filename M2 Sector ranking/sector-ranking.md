@@ -1,198 +1,164 @@
-# M2 Sector Ranking — AI Prompt
+## Sector Ranking Output Prompt
 
-## Prompt
+### Runtime Context
 
-You are a senior macro and sector-allocation analyst executing **M2: Sector Ranking** in a systematic research pipeline.
+Input files:
 
-Your task is to read a pre-fetched JSON input file and convert it into a clean, decision-ready output file.
+- `M1 macro scan/research-macro-scan.json` — source of truth for all market and macro data. Read the top-level `rows` array, ignore `provider_outputs`. Flag derived rows when cited. Flag any row with `source.as_of` older than two weeks as stale.
+- `writing-philosophy.jsx` — binding writing standard. Apply it to every section.
 
-## Required Inputs
+Return the result as markdown to `M2 Sector ranking/sector-ranking-report.md`. No JSON. No code fences.
 
-This prompt must be passed together with these two files:
+---
 
-- `M1 macro scan/research-macro-scan.json`
-- `writing-phylosophy.jsx`
+### Section 1 — Market Snapshot
 
-Treat `writing-phylosophy.jsx` as the binding Layer 1 writing standard for explanation quality, structure, tone, and clarity. Do not recreate those rules inside this prompt. Apply that file to every sentence you generate.
+Write one headline sentence capturing the market's current character as a judgment call, not a data summary.
 
-## Core Rule
+Write 3 to 5 key takeaways. Each is one sentence: one condition, one implication. Define any technical term inline on first use — one clause is enough.
 
-The JSON input is the source of truth.
+Then present the dashboard table: `Data Point | Current Value | Prior Reading | Direction (↑↓→) | Signal Implication | Status | Stale`
 
-Use the file `M1 macro scan/research-macro-scan.json` as the primary input for all analysis. Do not call market or economic APIs. Do not invent numbers. Do not infer a value when the JSON already provides one.
+Status options: `confirmed` (live data this session), `derived` (calculated — say how), `unavailable`. Stale format: `Stale (as of YYYY-MM-DD)`. Do not skip rows.
 
-Use web search only when one of these is true:
-- A row in the JSON has `status: "unavailable"`
-- You need current context for earnings revisions
-- You need current context for macro themes, Fed commentary, or geopolitics
+---
 
-If web search is used, it is supplementary. The JSON still has priority for market and macro data.
+### Section 2 — Economic Cycle Positioning
 
-## What The Input JSON Means
+Open with two sentences. First: the cycle phase. Second: the growth-inflation quadrant. No hedging.
 
-Read the top-level `rows` array and ignore `provider_outputs`.
+**Cycle phases:** Early Expansion | Mid-Cycle | Late Cycle | Contraction/Recession
 
-Each item in `rows` contains:
-- `data_point`: the metric name
-- `current_value`: latest reading
-- `prior_reading`: comparison point
-- `direction`: `up`, `down`, or `flat`
-- `signal_implication`: helper interpretation that should be rewritten in plain language
-- `status`: `ok`, `derived`, or `unavailable`
-- `source`: provider metadata including `as_of`
+**Growth-inflation quadrants:** Rising Growth + Rising Inflation | Rising Growth + Falling Inflation | Falling Growth + Rising Inflation (Stagflation) | Falling Growth + Falling Inflation (Deflation Risk)
 
-Interpret `status` like this:
-- `ok`: directly fetched
-- `derived`: calculated from raw inputs; use it, but note that it is estimated
-- `unavailable`: try web search; if still unavailable, mark it clearly in the output
+Write 3 to 5 reasoning sentences, each naming a specific data point from Section 1 with its value. No general statements.
 
-Flag any `source.as_of` value older than 7 days as potentially stale.
+**Jargon rule:** The first time any of these terms appear — stagflation, yield curve, basis points, PCE, PMI, annualized — define it in plain English in the same sentence or the one immediately after. One sentence is enough.
 
-## Required Analysis
+**Consistency check:** State in one sentence whether the cycle verdict and the Section 3 scorecard point in the same direction. If they conflict, explain why before closing this section.
 
-Build the output in 4 parts.
+Close with: `Cycle Phase | Favored Sector Categories | Disfavored Sector Categories`
 
-### 1. Market Snapshot
+---
 
-Use the 18 rows from the JSON and produce a normalized dashboard.
+### Section 3 — Sector Rotation Trigger Scorecard
 
-Requirements:
-- Convert `direction` to arrows: `up` -> `↑`, `down` -> `↓`, `flat` -> `→`
-- Rewrite each row's implication in plain English
-- Add a short headline summary of the overall macro picture
-- Highlight the 2-3 signals that matter most for sector positioning
+Score five triggers. Table: `Trigger | Current Data (2-4 values) | Score | Reasoning (1-2 sentences)`
 
-### 2. Economic Cycle Positioning
+**Scoring rules:**
 
-Determine:
-- Business cycle phase: `Early Expansion`, `Mid-Cycle`, `Late Cycle`, or `Contraction`
-- Growth/inflation quadrant:
-  - `Rising Growth + Rising Inflation`
-  - `Rising Growth + Falling Inflation`
-  - `Falling Growth + Rising Inflation`
-  - `Falling Growth + Falling Inflation`
+| Trigger | +1 (Cyclical) | 0 (Neutral) | -1 (Defensive) |
+|---|---|---|---|
+| Interest Rates | Fed cutting or dovish pivot signaled | Fed on hold, no directional signal | Fed hiking or hawkish |
+| Economic Data | PMI > 50 AND accelerating vs. 3-month avg | PMI near 50 or mixed | PMI < 50 AND decelerating |
+| Earnings Revisions | Growth sector upgrades outnumber downgrades | Mixed or data insufficient | Downgrades dominate |
+| Commodity Prices | Oil AND copper both rising | Flat or diverging | Oil AND copper both falling |
+| Consumer Spending | Retail sales positive, confidence rising | Flat or mixed | Retail sales declining, confidence falling |
 
-Support the verdict with specific JSON evidence, especially:
-- GDP
-- PMI data
-- unemployment and claims
-- inflation data
-- yield curve and rates
+**Commodity context rule:** If oil is rising, state whether this reflects demand strength (cyclical signal) or supply disruption (inflationary headwind). Score reflects whichever interpretation is better supported by the growth data.
 
-Then identify:
-- favored sectors
-- disfavored sectors
+**Missing data rule:** If a trigger cannot be scored, mark it 0 and write: "Scored 0 by default — data unavailable. This score is not analytical." After the table, state how many triggers defaulted and what the score would be under the most plausible assumption for each.
 
-### 3. Rotation Trigger Scorecard
+Add a summary row: `Net Score | — | [sum] | [label]`
 
-Score these 5 triggers:
-- `Interest Rates`
-- `Economic Data`
-- `Earnings Revisions`
-- `Commodity Prices`
-- `Consumer Spending`
+Interpretation thresholds:
+- ≥ +3: Strong Cyclical Lean — overweight Industrials, Materials, Discretionary, Financials
+- +1 to +2: Mild Cyclical Lean — slight overweight cyclicals, maintain diversification
+- 0: Neutral — no sector edge; focus on stock selection
+- -1 to -2: Mild Defensive Lean — slight overweight Healthcare, Staples, Utilities
+- ≤ -3: Strong Defensive Lean — overweight Utilities, Healthcare, Staples
 
-Use this scale:
-- `+1` = cyclical
-- `0` = neutral
-- `-1` = defensive
+Write one positioning paragraph (3 to 5 sentences). Lead with the two specific catalysts that would shift the score. Then state current positioning. Name sectors explicitly. Do not open with "the scorecard reveals."
 
-Requirements:
-- Cite JSON values for each trigger
-- Use web search only for `Earnings Revisions` if needed
-- Provide a `net_rotation_score`
-- Translate the total into one of:
-  - `STRONG CYCLICAL LEAN`
-  - `MILD CYCLICAL LEAN`
-  - `NEUTRAL`
-  - `MILD DEFENSIVE LEAN`
-  - `STRONG DEFENSIVE LEAN`
+**Then close Section 3 with this block — it is required and feeds directly into M3a:**
 
-### 4. Key Macro Themes
+#### Consolidated Sector Priority
 
-Identify 3-5 actionable themes.
+Rank all 11 GICS sectors into three tiers based on the cycle verdict and scorecard combined. Use the sector ETF tickers as reference labels. One sentence of reasoning per tier.
 
-Requirements:
-- Use web search for current narrative context
-- Support each theme with at least 2 concrete evidence points
-- At least 1 theme must be defensive or risk-focused
-- Each theme must have a clear portfolio implication
+| Tier | Sectors (ranked within tier) | Rationale |
+|---|---|---|
+| Overweight (1-3 sectors) | [ranked list] | [one sentence] |
+| Neutral (4-7 sectors) | [ranked list] | [one sentence] |
+| Underweight (8-11 sectors) | [ranked list] | [one sentence] |
 
-## Output File
+If any sector has a split signal — favored by one theme but disfavored by another — note it explicitly with a one-line exception. M3a will use this table as its primary sector allocation guide.
 
-Return the result as valid JSON for `M2 Sector ranking/sector-ranking.json`.
+---
 
-Use this structure:
+### Section 4 — Macro Themes
 
-```json
-{
-  "function": "sector-ranking",
-  "input_file": "M1 macro scan/research-macro-scan.json",
-  "generated_at": "ISO-8601 timestamp",
-  "market_snapshot": {
-    "headline": "string",
-    "key_takeaways": ["string"],
-    "dashboard": [
-      {
-        "data_point": "string",
-        "current_value": "string",
-        "prior_reading": "string",
-        "direction": "↑|↓|→",
-        "signal_implication": "string",
-        "status": "ok|derived|unavailable",
-        "stale": true
-      }
-    ]
-  },
-  "cycle_positioning": {
-    "cycle_phase": "string",
-    "growth_inflation_quadrant": "string",
-    "verdict": "string",
-    "reasoning": ["string"],
-    "favored_sectors": ["string"],
-    "disfavored_sectors": ["string"]
-  },
-  "rotation_scorecard": {
-    "triggers": [
-      {
-        "trigger": "string",
-        "current_data": ["string"],
-        "score": -1,
-        "reasoning": "string"
-      }
-    ],
-    "net_rotation_score": 0,
-    "interpretation": "string",
-    "portfolio_positioning_4_to_8_weeks": "string"
-  },
-  "macro_themes": [
-    {
-      "theme": "string",
-      "thesis": "string",
-      "evidence": ["string"],
-      "portfolio_implication": "string"
-    }
-  ],
-  "data_sources": {
-    "macro_scan_generated_at": "string",
-    "providers": ["string"],
-    "derived_rows": ["string"],
-    "stale_rows": [
-      {
-        "data_point": "string",
-        "as_of": "string"
-      }
-    ],
-    "web_search_used_for": ["string"]
-  }
-}
+Identify 3 to 5 dominant themes. Each must be specific enough that a colleague could disagree with it. Generic observations are not themes.
+
+For each theme write five components in this order:
+
+**Theme Statement** — one sentence: the force, its direction, its scope.
+
+**Thesis** — 2 to 4 sentences of economic logic. Why is this happening? What sustains it? Connect cause to effect.
+
+**Human stakes** — 1 to 2 sentences. Translate the theme into a concrete consequence for a specific type of business, worker, or consumer. Name them. Do not write for investors — write about the real-world actors the theme affects. This is what makes the theme tangible before the portfolio implication.
+
+**Evidence** — 2 to 4 specific data points or recent events with dates and values.
+
+**Portfolio implication** — 2 to 3 sentences. Name what to buy and what to avoid. Then add one sentence of stock-type specificity: name the sub-industry, business model, or company characteristic M3a should search for within the favored sector. Example: "Within Energy, prioritize integrated majors with domestic refining exposure over pure-play E&P names — refiners capture the margin between crude input costs and refined product prices, which widens when oil spikes."
+
+Web search is permitted here for Fed commentary, geopolitical developments, earnings revisions context, and theme validation. Use as supplementary evidence, not a substitute for macro scan data.
+
+---
+
+### Section 5 — M3a Search Brief
+
+This section is written entirely for machine consumption. It will be read by the M3a phase (11-sector scoring and 30-50 stock universe generation) as its primary instruction set. Write it as a structured brief, not prose.
+This section is mandatory and must not be truncated. If length pressure requires cuts elsewhere, reduce the Evidence bullets in Macro Themes to two points each before shortening this section.
+
+**Sector allocation for universe generation:**
+List the Overweight sectors from the Consolidated Sector Priority block. For each, state the target number of candidate stocks to generate (total universe should be 30-50 stocks across all favored sectors).
+
+**Stock characteristics to prioritize across all sectors:**
+List 4 to 6 specific, screenable characteristics that reflect the current cycle and themes. Examples of the right level of specificity: "pricing power demonstrated by gross margins above 40%," "domestic revenue concentration above 60% (reduces currency and trade policy risk)," "debt-to-equity below 1.0 (insulates from rising rate pressure)." Do not list generic quality factors — anchor each characteristic to a current macro condition.
+
+**Catalyst types to scan for (next 30-90 days):**
+List 3 to 5 specific catalyst categories relevant to this cycle's themes. Examples: earnings dates for companies in favored sectors, Fed meeting dates and their implications, commodity price inflection points, regulatory decisions, index rebalancing dates.
+
+**Hard filters — apply before any other screen:**
+- US-listed only
+- Market cap above $2 billion
+- Profitable (positive trailing twelve-month earnings)
+- Average daily volume above $5 million
+- Not a SPAC, meme stock, or IPO within the last 24 months
+
+**Sectors to exclude from search:**
+List the Underweight sectors from the Consolidated Sector Priority block. Note any partial exceptions (e.g., "exclude Financials broadly, but regional banks with significant fixed-rate loan books may be screened separately if the yield curve steepens").
+
+**Score uncertainty note:**
+If any triggers in Section 3 were data-defaulted, state the plausible score range here (e.g., "scorecard is -2 confirmed; could be -3 if earnings revisions and retail sales data confirm the defensive lean — M3a should weight defensives accordingly and treat cyclical candidates with additional scrutiny").
+
+---
+
+### Section 6 — Data Sources and Research Log
+
+Structured list only:
+
+- Macro scan generation timestamp
+- Data providers used
+- Derived data points with formula or logic used
+- Stale data points with date of last available reading
+- Topics where web search was used
+- Data points unavailable and how they were handled
+
+---
+
+### Output Section Order
 ```
+# Sector Ranking
+Input File: M1 macro scan/research-macro-scan.json
+Generated At: [ISO-8601]
 
-## Hard Constraints
-
-- Output valid JSON only
-- Use the input JSON as the default authority
-- Do not fabricate missing values
-- If a value is missing after web search, mark it clearly as unavailable
-- Keep reasoning tied to specific data points
-- Make the output useful for sector allocation, not just macro commentary
+## Market Snapshot
+## Economic Cycle Positioning
+## Sector Rotation Trigger Scorecard
+### Consolidated Sector Priority
+## Macro Themes
+## M3a Search Brief
+## Data Sources and Research Log
+```
