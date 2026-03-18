@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the M3A universe generation prompt through the Anthropic Messages API."""
+"""Run the M3B stock screening prompt through the Anthropic Messages API."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ import json
 import os
 import random
 import time
-from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
 
@@ -18,26 +17,36 @@ import anthropic
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_PATH = BASE_DIR / ".env"
 DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
-DEFAULT_SECTOR_INPUT_PATH = BASE_DIR / "M2 Sector ranking" / "sector-ranking-report.md"
-DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_suffix(".json")
-DEFAULT_DEBUG_TEXT_PATH = Path(__file__).with_name("universe-generation-last-response.txt")
+DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "universe-generation-api.json"
+DEFAULT_OUTPUT_PATH = Path(__file__).with_name("stock-screener.txt")
 
-ANTHROPIC_API_ENV_VAR = "ANTHROPIC_API_KEY"
-ANTHROPIC_MODEL = "claude-sonnet-4-6"
-ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
-WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
+ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
+ANTHROPIC_MODEL_LABEL = "Claude Haiku 4.5"
+
+# Fields required by the 5 scoring lenses — everything else is stripped before sending
+SCREENING_FIELDS = {
+    "ticker", "company_name", "sector", "sector_rank", "sub_industry",
+    "industry_gics", "why_included",
+    # Lens 2 — macro alignment
+    "beta", "dividend_yield", "revenue_growth_yoy", "gross_margin_pct",
+    "operating_margin_pct", "debt_to_ebitda", "fcf_yield",
+    # Lens 3 — multi-factor quant
+    "pe_forward", "pe_trailing", "momentum_score",
+    "return_1m_pct", "return_3m_pct", "return_12m_pct",
+    "roe", "debt_to_equity",
+    # Lens 4 — quality growth
+    "free_cash_flow_ttm",
+}
 MAX_OUTPUT_TOKENS = 16000
 DEFAULT_TEMPERATURE = 0.0
-DEFAULT_WEB_SEARCH_MAX_USES = 20
 DEFAULT_MAX_PAUSE_TURNS = 4
 DEFAULT_MAX_RETRIES = 5
 DEFAULT_RETRY_BASE_DELAY = 2.0
 DEFAULT_RETRY_MAX_DELAY = 60.0
 
 
-class AnthropicRunnerError(RuntimeError):
-    """Base error for universe generation runner failures."""
+class RunnerError(RuntimeError):
+    """Base error for stock screening runner failures."""
 
 
 def load_env_file(path: Path) -> None:
@@ -65,55 +74,54 @@ def resolve_api_key(explicit_api_key: str | None) -> str:
     if explicit_api_key:
         return explicit_api_key
 
-    api_key = os.getenv(ANTHROPIC_API_ENV_VAR)
+    api_key = os.getenv("ANTHROPIC_API_KEY")
     if api_key:
         return api_key
 
-    raise AnthropicRunnerError(
-        f"Missing {ANTHROPIC_API_ENV_VAR}. Set it in .env or export it in the shell."
+    raise RunnerError(
+        "Missing ANTHROPIC_API_KEY. Set it in .env or export it in the shell."
     )
 
 
 def read_required_text(path: Path, label: str) -> str:
     if not path.exists():
-        raise AnthropicRunnerError(f"Missing {label}: {path}")
+        raise RunnerError(f"Missing {label}: {path}")
     return path.read_text(encoding="utf-8")
 
 
-def build_user_message(
-    sector_report_text: str,
-    macro_scan_text: str,
-) -> str:
-    return (
-        "Use the files below as the complete working context.\n\n"
-        "FILE: M2 Sector ranking/sector-ranking-report.md\n"
-        "```md\n"
-        f"{sector_report_text.strip()}\n"
-        "```\n\n"
-        "FILE: M1 macro scan/research-macro-scan.json\n"
-        "```json\n"
-        f"{macro_scan_text.strip()}\n"
-        "```\n\n"
-        "Return only the final JSON code block for "
-        "`M3A Universe generation/universe-generation.json`. "
-        "Do not add commentary before or after the JSON code block."
+def project_for_screening(raw: str) -> str:
+    """Strip the API JSON to only the fields used by the 5 scoring lenses."""
+    data = json.loads(raw)
+    projected = {
+        "rotation_score": data.get("rotation_score"),
+        "cycle_phase":    data.get("cycle_phase"),
+        "stocks": [
+            {k: v for k, v in stock.items() if k in SCREENING_FIELDS}
+            for stock in data.get("stocks", [])
+        ],
+    }
+    original_chars = len(raw)
+    projected_chars = len(json.dumps(projected))
+    print(
+        f"  [projection] {len(projected['stocks'])} stocks — "
+        f"{original_chars:,} → {projected_chars:,} chars "
+        f"({100 - projected_chars * 100 // original_chars}% reduction)",
+        flush=True,
     )
+    return json.dumps(projected, indent=2)
 
 
-def build_tools(
-    enable_web_search: bool,
-    web_search_tool_type: str,
-    web_search_max_uses: int,
-) -> list[dict[str, Any]] | None:
-    if not enable_web_search:
-        return None
-    return [
-        {
-            "type": web_search_tool_type,
-            "name": "web_search",
-            "max_uses": web_search_max_uses,
-        }
-    ]
+def build_user_message(api_input_text: str) -> str:
+    projected = project_for_screening(api_input_text)
+    return (
+        "Use the data below as the complete working context.\n\n"
+        "```json\n"
+        f"{projected}\n"
+        "```\n\n"
+        "Score every stock in the `stocks` array using all five lenses "
+        "and produce the full output as specified in the prompt. "
+        "Write plain text only — no markdown formatting."
+    )
 
 
 def stream_with_retry(
@@ -124,7 +132,6 @@ def stream_with_retry(
     messages: list[dict[str, Any]],
     max_tokens: int,
     temperature: float,
-    tools: list[dict[str, Any]] | None,
     max_retries: int,
     base_delay: float,
     max_delay: float,
@@ -137,8 +144,6 @@ def stream_with_retry(
         "temperature": temperature,
         "messages": messages,
     }
-    if tools:
-        kwargs["tools"] = tools
 
     last_exc: Exception | None = None
     for attempt in range(max_retries):
@@ -157,7 +162,7 @@ def stream_with_retry(
             delay = min(retry_after + random.uniform(0, 1), max_delay)
         except anthropic.APIStatusError as exc:
             if exc.status_code < 500:
-                raise  # 4xx client errors are not retryable
+                raise
             last_exc = exc
             delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
         except anthropic.APIConnectionError as exc:
@@ -167,7 +172,7 @@ def stream_with_retry(
         print(f"\n[Retry {attempt + 1}/{max_retries}] Waiting {delay:.1f}s before retrying...", flush=True)
         time.sleep(delay)
 
-    raise AnthropicRunnerError(
+    raise RunnerError(
         f"Anthropic request failed after {max_retries} retries."
     ) from last_exc
 
@@ -180,7 +185,6 @@ def run_message_loop(
     user_message: str,
     max_tokens: int,
     temperature: float,
-    tools: list[dict[str, Any]] | None,
     max_pause_turns: int,
     max_retries: int,
     base_delay: float,
@@ -200,7 +204,6 @@ def run_message_loop(
             messages=messages,
             max_tokens=max_tokens,
             temperature=temperature,
-            tools=tools,
             max_retries=max_retries,
             base_delay=base_delay,
             max_delay=max_delay,
@@ -216,7 +219,7 @@ def run_message_loop(
             }
         ]
 
-    raise AnthropicRunnerError(
+    raise RunnerError(
         "Anthropic response hit repeated pause_turn limits before producing a final answer."
     )
 
@@ -229,77 +232,24 @@ def extract_text_response(response: anthropic.types.Message) -> str:
     return "\n".join(parts).strip()
 
 
-def parse_json_payload(text: str) -> dict[str, Any]:
-    if not text:
-        raise AnthropicRunnerError("Anthropic returned an empty text response.")
-
-    # 1. Try direct parse — response is pure JSON
-    try:
-        payload = json.loads(text)
-        if isinstance(payload, dict):
-            return payload
-    except JSONDecodeError:
-        pass
-
-    # 2. Find any ```json ... ``` or ``` ... ``` block anywhere in the text
-    import re
-    for block_match in re.finditer(r"```(?:json)?\s*\n(.*?)\n\s*```", text, re.DOTALL):
-        inner = block_match.group(1).strip()
-        try:
-            payload = json.loads(inner)
-            if isinstance(payload, dict):
-                return payload
-        except JSONDecodeError:
-            pass
-
-    # 3. Find the largest valid JSON object starting from any { in the text
-    decoder = json.JSONDecoder()
-    best: dict[str, Any] | None = None
-    for index, character in enumerate(text):
-        if character != "{":
-            continue
-        try:
-            candidate, _ = decoder.raw_decode(text[index:])
-        except JSONDecodeError:
-            continue
-        if isinstance(candidate, dict) and len(candidate) > len(best or {}):
-            best = candidate
-
-    if best is not None:
-        return best
-
-    raise AnthropicRunnerError(
-        "Anthropic response was not valid JSON. Raw text response could not be parsed."
-    )
-
-
-def write_debug_artifacts(response_text: str) -> None:
-    DEFAULT_DEBUG_TEXT_PATH.write_text(response_text + "\n", encoding="utf-8")
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the M3A universe generation prompt with Anthropic Claude."
+        description="Run the M3B stock screening prompt with Anthropic Claude."
     )
     parser.add_argument(
         "--prompt-file",
         default=str(DEFAULT_PROMPT_PATH),
-        help="Path to the universe-generation prompt markdown file.",
+        help="Path to the stock-screening prompt markdown file.",
     )
     parser.add_argument(
-        "--sector-input-file",
-        default=str(DEFAULT_SECTOR_INPUT_PATH),
-        help="Path to the M2 sector ranking report markdown file.",
-    )
-    parser.add_argument(
-        "--macro-input-file",
-        default=str(DEFAULT_MACRO_INPUT_PATH),
-        help="Path to the M1 macro scan JSON file.",
+        "--api-input-file",
+        default=str(DEFAULT_API_INPUT_PATH),
+        help="Path to the universe-generation-api.json file.",
     )
     parser.add_argument(
         "--output",
         default=str(DEFAULT_OUTPUT_PATH),
-        help="Where to write the final universe-generation JSON output.",
+        help="Where to write the screening report text output.",
     )
     parser.add_argument(
         "--api-key",
@@ -312,21 +262,10 @@ def parse_args() -> argparse.Namespace:
         help="Sampling temperature.",
     )
     parser.add_argument(
-        "--disable-web-search",
-        action="store_true",
-        help="Disable Anthropic web search tool usage for this run.",
-    )
-    parser.add_argument(
-        "--web-search-max-uses",
-        type=int,
-        default=DEFAULT_WEB_SEARCH_MAX_USES,
-        help="Maximum Anthropic web searches allowed during the run.",
-    )
-    parser.add_argument(
         "--max-pause-turns",
         type=int,
         default=DEFAULT_MAX_PAUSE_TURNS,
-        help="How many pause_turn continuations to allow for server tools.",
+        help="How many pause_turn continuations to allow.",
     )
     parser.add_argument(
         "--max-retries",
@@ -347,25 +286,12 @@ def main() -> None:
     args = parse_args()
 
     prompt_path = Path(args.prompt_file)
-    sector_input_path = Path(args.sector_input_file)
-    macro_input_path = Path(args.macro_input_file)
+    api_input_path = Path(args.api_input_file)
     output_path = Path(args.output)
 
-    enable_web_search = not args.disable_web_search
-
     system_prompt = read_required_text(prompt_path, "prompt file")
-    sector_report_text = read_required_text(sector_input_path, "sector ranking report file")
-    macro_scan_text = read_required_text(macro_input_path, "macro scan file")
-    user_message = build_user_message(
-        sector_report_text=sector_report_text,
-        macro_scan_text=macro_scan_text,
-    )
-
-    tools = build_tools(
-        enable_web_search=enable_web_search,
-        web_search_tool_type=WEB_SEARCH_TOOL_TYPE,
-        web_search_max_uses=args.web_search_max_uses,
-    )
+    api_input_text = read_required_text(api_input_path, "universe-generation-api.json")
+    user_message = build_user_message(api_input_text)
 
     if args.dry_run:
         print(
@@ -374,12 +300,8 @@ def main() -> None:
                     "model": ANTHROPIC_MODEL,
                     "model_label": ANTHROPIC_MODEL_LABEL,
                     "prompt_file": str(prompt_path),
-                    "sector_input_file": str(sector_input_path),
-                    "macro_input_file": str(macro_input_path),
+                    "api_input_file": str(api_input_path),
                     "output_file": str(output_path),
-                    "web_search_enabled": enable_web_search,
-                    "web_search_tool_type": WEB_SEARCH_TOOL_TYPE if enable_web_search else None,
-                    "web_search_max_uses": args.web_search_max_uses if enable_web_search else 0,
                     "max_output_tokens": MAX_OUTPUT_TOKENS,
                     "temperature": args.temperature,
                 },
@@ -391,8 +313,7 @@ def main() -> None:
     api_key = resolve_api_key(args.api_key)
     client = anthropic.Anthropic(api_key=api_key)
 
-    print(f"[universe-generation] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
-    print(f"  web_search={'enabled (max ' + str(args.web_search_max_uses) + ' uses)' if enable_web_search else 'disabled'}", flush=True)
+    print(f"[stock-screening] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
     print("  Streaming response:\n", flush=True)
 
     response = run_message_loop(
@@ -402,7 +323,6 @@ def main() -> None:
         user_message=user_message,
         max_tokens=MAX_OUTPUT_TOKENS,
         temperature=args.temperature,
-        tools=tools,
         max_pause_turns=args.max_pause_turns,
         max_retries=args.max_retries,
         base_delay=DEFAULT_RETRY_BASE_DELAY,
@@ -412,48 +332,17 @@ def main() -> None:
     print("\n", flush=True)
 
     response_text = extract_text_response(response)
-    write_debug_artifacts(response_text)
 
     if not response_text:
-        raise AnthropicRunnerError(
-            "Anthropic returned an empty text response. "
-            f"The last response was saved to {DEFAULT_DEBUG_TEXT_PATH}."
-        )
+        raise RunnerError("Anthropic returned an empty text response.")
     if response.stop_reason == "max_tokens":
-        raise AnthropicRunnerError(
-            "Anthropic stopped at max_tokens before finishing valid JSON. "
-            f"The last response was saved to {DEFAULT_DEBUG_TEXT_PATH}."
+        raise RunnerError(
+            "Anthropic stopped at max_tokens before finishing the report. "
+            f"Partial output saved to {output_path}."
         )
-
-    try:
-        payload = parse_json_payload(response_text)
-    except AnthropicRunnerError as parse_err:
-        if output_path.exists():
-            print(
-                f"\n  [WARNING] JSON parse failed: {parse_err}\n"
-                f"  Falling back to existing {output_path.name} — pipeline will continue.",
-                flush=True,
-            )
-            print(
-                json.dumps(
-                    {
-                        "output_file": str(output_path),
-                        "model": ANTHROPIC_MODEL,
-                        "model_label": ANTHROPIC_MODEL_LABEL,
-                        "stop_reason": response.stop_reason,
-                        "usage": response.usage.model_dump() if response.usage else {},
-                        "web_search_enabled": enable_web_search,
-                        "max_output_tokens": MAX_OUTPUT_TOKENS,
-                        "fallback": True,
-                    },
-                    indent=2,
-                )
-            )
-            return
-        raise
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    output_path.write_text(response_text + "\n", encoding="utf-8")
 
     print(
         json.dumps(
@@ -463,8 +352,6 @@ def main() -> None:
                 "model_label": ANTHROPIC_MODEL_LABEL,
                 "stop_reason": response.stop_reason,
                 "usage": response.usage.model_dump() if response.usage else {},
-                "web_search_enabled": enable_web_search,
-                "max_output_tokens": MAX_OUTPUT_TOKENS,
             },
             indent=2,
         )

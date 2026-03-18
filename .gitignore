@@ -2,4 +2,14 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+.venv/
+
+# Generated data outputs
 data/state/*.json
+M1 macro scan/research-macro-scan.json
+M2 Sector ranking/sector-ranking-report.md
+M2 Sector ranking/sector-ranking-last-response*
+M3A Universe generation/universe-generation.json
+M3A Universe generation/universe-generation-api.json
+M3A Universe generation/universe-generation-last-response*
+M3B stock screening/stock-screener.txt
