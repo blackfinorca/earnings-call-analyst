@@ -6,11 +6,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
+import time
 from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+
+import anthropic
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -23,16 +25,16 @@ DEFAULT_DEBUG_RESPONSE_PATH = Path(__file__).with_name("universe-generation-last
 DEFAULT_DEBUG_TEXT_PATH = Path(__file__).with_name("universe-generation-last-response.txt")
 
 ANTHROPIC_API_ENV_VAR = "ANTHROPIC_API_KEY"
-ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
-ANTHROPIC_VERSION = "2023-06-01"
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
 WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
-MAX_OUTPUT_TOKENS = 7000
+MAX_OUTPUT_TOKENS = 16000
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_WEB_SEARCH_MAX_USES = 20
-DEFAULT_TIMEOUT_SECONDS = 1200
 DEFAULT_MAX_PAUSE_TURNS = 4
+DEFAULT_MAX_RETRIES = 5
+DEFAULT_RETRY_BASE_DELAY = 2.0
+DEFAULT_RETRY_MAX_DELAY = 60.0
 
 
 class AnthropicRunnerError(RuntimeError):
@@ -99,89 +101,119 @@ def build_user_message(
     )
 
 
-def build_request_body(
-    *,
-    model: str,
-    system_prompt: str,
-    user_message: str,
-    max_tokens: int,
-    temperature: float,
+def build_tools(
     enable_web_search: bool,
     web_search_tool_type: str,
     web_search_max_uses: int,
-    conversation_messages: list[dict[str, Any]] | None = None,
-) -> dict[str, Any]:
-    messages = conversation_messages or [{"role": "user", "content": user_message}]
-    body: dict[str, Any] = {
+) -> list[dict[str, Any]] | None:
+    if not enable_web_search:
+        return None
+    return [
+        {
+            "type": web_search_tool_type,
+            "name": "web_search",
+            "max_uses": web_search_max_uses,
+        }
+    ]
+
+
+def stream_with_retry(
+    *,
+    client: anthropic.Anthropic,
+    model: str,
+    system_prompt: str,
+    messages: list[dict[str, Any]],
+    max_tokens: int,
+    temperature: float,
+    tools: list[dict[str, Any]] | None,
+    max_retries: int,
+    base_delay: float,
+    max_delay: float,
+) -> anthropic.types.Message:
+    """Stream a message request with exponential backoff retry on transient errors."""
+    kwargs: dict[str, Any] = {
         "model": model,
         "system": system_prompt,
         "max_tokens": max_tokens,
         "temperature": temperature,
         "messages": messages,
     }
-    if enable_web_search:
-        body["tools"] = [
-            {
-                "type": web_search_tool_type,
-                "name": "web_search",
-                "max_uses": web_search_max_uses,
-            }
-        ]
-    return body
+    if tools:
+        kwargs["tools"] = tools
 
+    last_exc: Exception | None = None
+    for attempt in range(max_retries):
+        try:
+            with client.messages.stream(**kwargs) as stream:
+                for text_chunk in stream.text_stream:
+                    print(text_chunk, end="", flush=True)
+                return stream.get_final_message()
+        except anthropic.RateLimitError as exc:
+            last_exc = exc
+            retry_after = int(
+                getattr(getattr(exc, "response", None), "headers", {}).get(
+                    "retry-after", base_delay * (2 ** attempt)
+                )
+            )
+            delay = min(retry_after + random.uniform(0, 1), max_delay)
+        except anthropic.APIStatusError as exc:
+            if exc.status_code < 500:
+                raise  # 4xx client errors are not retryable
+            last_exc = exc
+            delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
+        except anthropic.APIConnectionError as exc:
+            last_exc = exc
+            delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
 
-def post_messages(
-    *,
-    api_key: str,
-    body: dict[str, Any],
-    timeout_seconds: int,
-) -> dict[str, Any]:
-    request = Request(
-        ANTHROPIC_API_URL,
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "content-type": "application/json",
-            "x-api-key": api_key,
-            "anthropic-version": ANTHROPIC_VERSION,
-        },
-        method="POST",
-    )
-    try:
-        with urlopen(request, timeout=timeout_seconds) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
-        payload = exc.read().decode("utf-8", errors="replace").strip()
-        raise AnthropicRunnerError(f"Anthropic HTTP {exc.code}: {payload[:500]}") from exc
-    except URLError as exc:
-        raise AnthropicRunnerError(f"Anthropic network error: {exc}") from exc
-    except JSONDecodeError as exc:
-        raise AnthropicRunnerError("Anthropic returned a non-JSON response.") from exc
+        print(f"\n[Retry {attempt + 1}/{max_retries}] Waiting {delay:.1f}s before retrying...", flush=True)
+        time.sleep(delay)
+
+    raise AnthropicRunnerError(
+        f"Anthropic request failed after {max_retries} retries."
+    ) from last_exc
 
 
 def run_message_loop(
     *,
-    api_key: str,
-    body: dict[str, Any],
-    timeout_seconds: int,
+    client: anthropic.Anthropic,
+    model: str,
+    system_prompt: str,
+    user_message: str,
+    max_tokens: int,
+    temperature: float,
+    tools: list[dict[str, Any]] | None,
     max_pause_turns: int,
-) -> dict[str, Any]:
-    conversation_messages = list(body["messages"])
+    max_retries: int,
+    base_delay: float,
+    max_delay: float,
+) -> anthropic.types.Message:
+    """Stream the agentic loop, resuming on pause_turn up to max_pause_turns times."""
+    messages: list[dict[str, Any]] = [{"role": "user", "content": user_message}]
 
-    for _ in range(max_pause_turns + 1):
-        request_body = dict(body)
-        request_body["messages"] = conversation_messages
-        response = post_messages(
-            api_key=api_key,
-            body=request_body,
-            timeout_seconds=timeout_seconds,
+    for turn in range(max_pause_turns + 1):
+        if turn > 0:
+            print(f"\n[Turn {turn + 1}] Resuming after pause_turn...", flush=True)
+
+        response = stream_with_retry(
+            client=client,
+            model=model,
+            system_prompt=system_prompt,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            tools=tools,
+            max_retries=max_retries,
+            base_delay=base_delay,
+            max_delay=max_delay,
         )
-        if response.get("stop_reason") != "pause_turn":
+
+        if response.stop_reason != "pause_turn":
             return response
 
-        conversation_messages = conversation_messages + [
+        messages = messages + [
             {
                 "role": "assistant",
-                "content": response.get("content", []),
+                "content": response.content,
             }
         ]
 
@@ -190,13 +222,11 @@ def run_message_loop(
     )
 
 
-def extract_text_response(response: dict[str, Any]) -> str:
+def extract_text_response(response: anthropic.types.Message) -> str:
     parts: list[str] = []
-    for block in response.get("content", []):
-        if block.get("type") == "text":
-            text = block.get("text", "")
-            if text:
-                parts.append(text)
+    for block in response.content:
+        if block.type == "text" and block.text:
+            parts.append(block.text)
     return "\n".join(parts).strip()
 
 
@@ -242,9 +272,10 @@ def parse_json_payload(text: str) -> dict[str, Any]:
     )
 
 
-def write_debug_artifacts(response: dict[str, Any], response_text: str) -> None:
+def write_debug_artifacts(response: anthropic.types.Message, response_text: str) -> None:
+    response_dict = response.model_dump()
     DEFAULT_DEBUG_RESPONSE_PATH.write_text(
-        json.dumps(response, indent=2) + "\n",
+        json.dumps(response_dict, indent=2) + "\n",
         encoding="utf-8",
     )
     DEFAULT_DEBUG_TEXT_PATH.write_text(response_text + "\n", encoding="utf-8")
@@ -300,16 +331,16 @@ def parse_args() -> argparse.Namespace:
         help="Maximum Anthropic web searches allowed during the run.",
     )
     parser.add_argument(
-        "--timeout-seconds",
-        type=int,
-        default=DEFAULT_TIMEOUT_SECONDS,
-        help="HTTP timeout for each Anthropic API request.",
-    )
-    parser.add_argument(
         "--max-pause-turns",
         type=int,
         default=DEFAULT_MAX_PAUSE_TURNS,
         help="How many pause_turn continuations to allow for server tools.",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=DEFAULT_MAX_RETRIES,
+        help="Maximum retry attempts on transient network/server errors.",
     )
     parser.add_argument(
         "--dry-run",
@@ -339,12 +370,7 @@ def main() -> None:
         macro_scan_text=macro_scan_text,
     )
 
-    request_body = build_request_body(
-        model=ANTHROPIC_MODEL,
-        system_prompt=system_prompt,
-        user_message=user_message,
-        max_tokens=MAX_OUTPUT_TOKENS,
-        temperature=args.temperature,
+    tools = build_tools(
         enable_web_search=enable_web_search,
         web_search_tool_type=WEB_SEARCH_TOOL_TYPE,
         web_search_max_uses=args.web_search_max_uses,
@@ -372,12 +398,28 @@ def main() -> None:
         return
 
     api_key = resolve_api_key(args.api_key)
+    client = anthropic.Anthropic(api_key=api_key)
+
+    print(f"[universe-generation] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
+    print(f"  web_search={'enabled (max ' + str(args.web_search_max_uses) + ' uses)' if enable_web_search else 'disabled'}", flush=True)
+    print("  Streaming response:\n", flush=True)
+
     response = run_message_loop(
-        api_key=api_key,
-        body=request_body,
-        timeout_seconds=args.timeout_seconds,
+        client=client,
+        model=ANTHROPIC_MODEL,
+        system_prompt=system_prompt,
+        user_message=user_message,
+        max_tokens=MAX_OUTPUT_TOKENS,
+        temperature=args.temperature,
+        tools=tools,
         max_pause_turns=args.max_pause_turns,
+        max_retries=args.max_retries,
+        base_delay=DEFAULT_RETRY_BASE_DELAY,
+        max_delay=DEFAULT_RETRY_MAX_DELAY,
     )
+
+    print("\n", flush=True)
+
     response_text = extract_text_response(response)
     write_debug_artifacts(response, response_text)
 
@@ -387,7 +429,7 @@ def main() -> None:
             f"The last response was saved to {DEFAULT_DEBUG_RESPONSE_PATH} and "
             f"{DEFAULT_DEBUG_TEXT_PATH}."
         )
-    if response.get("stop_reason") == "max_tokens":
+    if response.stop_reason == "max_tokens":
         raise AnthropicRunnerError(
             "Anthropic stopped at max_tokens before finishing valid JSON. "
             f"The last response was saved to {DEFAULT_DEBUG_RESPONSE_PATH} and "
@@ -402,7 +444,7 @@ def main() -> None:
     if raw_response_output:
         raw_response_output.parent.mkdir(parents=True, exist_ok=True)
         raw_response_output.write_text(
-            json.dumps(response, indent=2) + "\n",
+            json.dumps(response.model_dump(), indent=2) + "\n",
             encoding="utf-8",
         )
 
@@ -412,8 +454,8 @@ def main() -> None:
                 "output_file": str(output_path),
                 "model": ANTHROPIC_MODEL,
                 "model_label": ANTHROPIC_MODEL_LABEL,
-                "stop_reason": response.get("stop_reason"),
-                "usage": response.get("usage", {}),
+                "stop_reason": response.stop_reason,
+                "usage": response.usage.model_dump() if response.usage else {},
                 "web_search_enabled": enable_web_search,
                 "max_output_tokens": MAX_OUTPUT_TOKENS,
             },
