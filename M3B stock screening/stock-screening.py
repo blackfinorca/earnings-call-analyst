@@ -20,8 +20,8 @@ DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
 DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "universe-generation-api.json"
 DEFAULT_OUTPUT_PATH = Path(__file__).with_name("stock-screener.txt")
 
-ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
-ANTHROPIC_MODEL_LABEL = "Claude Haiku 4.5"
+ANTHROPIC_MODEL = "claude-sonnet-4-6"
+ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
 
 # Fields required by the 5 scoring lenses — everything else is stripped before sending
 SCREENING_FIELDS = {
