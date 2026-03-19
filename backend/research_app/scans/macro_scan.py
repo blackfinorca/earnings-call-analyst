@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import csv
-import io
 import json
 import os
+import random
+import re
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -15,6 +15,12 @@ from typing import Any
 from urllib.request import Request, urlopen
 
 import yfinance as yf
+
+try:
+    import anthropic as _anthropic
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    _ANTHROPIC_AVAILABLE = False
 
 
 BASE_DIR = Path(__file__).resolve().parents[3]
@@ -25,8 +31,11 @@ ENV_PATH = BASE_DIR / ".env"
 DEFAULT_OUTPUT_PATH = PHASE_DIR / "research-macro-scan.json"
 CACHE_PATH = DATA_DIR / "state" / "macro-cache.json"
 
-FRED_BASE_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 BLS_BASE_URL  = "https://api.bls.gov/publicAPI/v1/timeseries/data"
+
+SONNET_MODEL         = "claude-sonnet-4-6"
+SONNET_WEB_SEARCH    = "web_search_20260209"
+SONNET_WEB_MAX_USES  = 10
 
 # Cache TTLs in minutes
 TTL_MARKET   = 15      # indices, commodities, yields
@@ -157,41 +166,135 @@ def fetch_yf(symbol: str, cache: dict, ttl: int = TTL_MARKET, period: str = "5d"
 
 
 # ---------------------------------------------------------------------------
-# FRED CSV fetcher — economic indicators
+# Claude Sonnet web search — economic indicators unreachable via direct API
 # ---------------------------------------------------------------------------
 
-def fetch_fred(series_id: str, cache: dict, ttl: int = TTL_ECONOMIC, limit: int = 14) -> list[dict] | None:
-    key = f"fred:{series_id}"
-    cached = cache_get(cache, key, ttl)
+def _parse_sonnet_json(text: str) -> dict | None:
+    """Extract first valid JSON object from Sonnet response text."""
+    try:
+        obj = json.loads(text)
+        if isinstance(obj, dict):
+            return obj
+    except json.JSONDecodeError:
+        pass
+    decoder = json.JSONDecoder()
+    for m in re.finditer(r"\{", text):
+        try:
+            obj, _ = decoder.raw_decode(text, m.start())
+            if isinstance(obj, dict):
+                return obj
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
+def fetch_economic_indicators_via_sonnet(cache: dict) -> dict:
+    """
+    Use Claude Sonnet with web search to fetch the 5 indicators that
+    are unavailable via direct API on the current network:
+      core_pce, mfg_pmi, svc_pmi, claims, gdp
+    Returns a dict with those keys, each holding {current, prior, date}.
+    """
+    CACHE_KEY = "sonnet:economic_indicators"
+    cached = cache_get(cache, CACHE_KEY, TTL_ECONOMIC)
     if cached:
         return cached
 
-    url = f"{FRED_BASE_URL}?id={series_id}"
-    try:
-        req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; macro-scan/1.0)"})
-        with urlopen(req, timeout=8) as resp:
-            text = resp.read().decode("utf-8")
-    except Exception as exc:
-        print(f"  [FRED] {series_id}: {exc}")
-        return None
-    try:
-        rows: list[dict] = []
-        for row in csv.DictReader(io.StringIO(text)):
-            date = row.get("DATE", "")
-            val_str = row.get("VALUE", "").strip()
-            if val_str and val_str != ".":
-                try:
-                    rows.append({"date": date, "value": float(val_str)})
-                except ValueError:
-                    pass
+    if not _ANTHROPIC_AVAILABLE:
+        print("  [Sonnet] anthropic package not installed — 5 indicators unavailable")
+        return {}
 
-        rows = sorted(rows, key=lambda r: r["date"], reverse=True)[:limit]
-        if rows:
-            cache_set(cache, key, rows)
-        return rows or None
-    except Exception as exc:
-        print(f"  [FRED] {series_id}: {exc}")
-        return None
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        print("  [Sonnet] ANTHROPIC_API_KEY not set — 5 indicators unavailable")
+        return {}
+
+    client = _anthropic.Anthropic(api_key=api_key)
+
+    system = (
+        "You are a macro economic data lookup tool. Search for the most recent US values "
+        "and return ONLY a raw JSON object with no commentary or markdown.\n\n"
+        "Required format exactly:\n"
+        '{"core_pce": {"current": number, "prior": number_or_null, "date": "YYYY-MM"}, '
+        '"mfg_pmi":  {"current": number, "prior": number_or_null, "date": "YYYY-MM"}, '
+        '"svc_pmi":  {"current": number, "prior": number_or_null, "date": "YYYY-MM"}, '
+        '"claims":   {"current": number, "prior": number_or_null, "date": "YYYY-MM-DD"}, '
+        '"gdp":      {"current": number, "prior": number_or_null, "date": "YYYY-QN"}}\n\n'
+        "claims is the raw weekly count (e.g. 218000). gdp is real annualized % growth."
+    )
+    user = (
+        "Find the most recently published values for these 5 US economic indicators:\n"
+        "1. Core PCE YoY % — the Fed's preferred inflation gauge (excludes food & energy)\n"
+        "2. ISM Manufacturing PMI — latest monthly reading\n"
+        "3. ISM Services NMI/PMI — latest monthly reading\n"
+        "4. Initial Jobless Claims — most recent weekly report (raw count)\n"
+        "5. US Real GDP growth — most recent quarter, annualized %\n\n"
+        "For each provide the current reading and the immediately prior reading. "
+        "Return only the JSON object."
+    )
+
+    messages: list[dict] = [{"role": "user", "content": user}]
+    tools = [{"type": SONNET_WEB_SEARCH, "name": "web_search", "max_uses": SONNET_WEB_MAX_USES}]
+
+    MAX_RETRIES = 5
+    BASE_DELAY  = 2.0
+    MAX_DELAY   = 60.0
+
+    response = None
+    for _ in range(6):  # handle pause_turn
+        last_exc = None
+        for attempt in range(MAX_RETRIES):
+            try:
+                response = client.messages.create(
+                    model=SONNET_MODEL,
+                    system=system,
+                    max_tokens=800,
+                    messages=messages,
+                    tools=tools,
+                )
+                last_exc = None
+                break
+            except _anthropic.RateLimitError as exc:
+                last_exc = exc
+                retry_after = int(
+                    getattr(getattr(exc, "response", None), "headers", {}).get(
+                        "retry-after", BASE_DELAY * (2 ** attempt)
+                    )
+                )
+                delay = min(retry_after + random.uniform(0, 1), MAX_DELAY)
+            except _anthropic.APIStatusError as exc:
+                if exc.status_code < 500:
+                    raise
+                last_exc = exc
+                delay = min(BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), MAX_DELAY)
+            except _anthropic.APIConnectionError as exc:
+                last_exc = exc
+                delay = min(BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), MAX_DELAY)
+            print(f"  [Sonnet] Retry {attempt + 1}/{MAX_RETRIES} — waiting {delay:.1f}s...", flush=True)
+            time.sleep(delay)
+
+        if last_exc:
+            print(f"  [Sonnet] Failed after {MAX_RETRIES} retries: {last_exc}")
+            return {}
+        if response is None:
+            return {}
+        if response.stop_reason != "pause_turn":
+            break
+        messages = messages + [{"role": "assistant", "content": response.content}]
+
+    if response is None:
+        return {}
+
+    text = " ".join(
+        b.text for b in response.content
+        if hasattr(b, "type") and b.type == "text" and b.text
+    )
+    result = _parse_sonnet_json(text)
+    if result:
+        cache_set(cache, CACHE_KEY, result)
+        return result
+    print("  [Sonnet] Could not parse economic indicators response")
+    return {}
 
 
 def fetch_bls(series_id: str, cache: dict, ttl: int = TTL_ECONOMIC) -> list[dict] | None:
@@ -397,17 +500,11 @@ def build_10y_row(cache: dict) -> dict:
 
 
 def build_2y_row(cache: dict) -> dict:
-    # Try Yahoo Finance tickers for 2Y, then fall back to FRED
     d = fetch_yf("2YY=F", cache) or fetch_yf("^TUO", cache)
-    if d:
-        cur, pri = d["current"], d["prior"]
-        provider, symbol, note = "Yahoo Finance / yfinance", "2YY=F", d["as_of"]
-    else:
-        rows = fetch_fred("DGS2", cache, limit=5)
-        cur, pri, date = fred_pair(rows)
-        if cur is None:
-            return unavailable_row("2Y Treasury Yield")
-        provider, symbol, note = "FRED", "DGS2", f"as of {date}"
+    if not d:
+        return unavailable_row("2Y Treasury Yield")
+    cur, pri = d["current"], d["prior"]
+    provider, symbol, note = "Yahoo Finance / yfinance", "2YY=F", d["as_of"]
     dir_ = direction(cur, pri)
     signal = {
         "up":   f"2Y yield rising ({cur:.2f}%); market pricing more Fed hikes or higher-for-longer.",
@@ -439,7 +536,8 @@ def build_spread_row(ten_y: dict, two_y: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Row builders — economic indicators (FRED)
+# Row builders — economic indicators
+# CPI and Unemployment use BLS (accessible). The other 5 use Sonnet web search.
 # ---------------------------------------------------------------------------
 
 def build_cpi_row(cache: dict) -> dict:
@@ -459,25 +557,23 @@ def build_cpi_row(cache: dict) -> dict:
                     "ok", "BLS", "CUUR0000SA0", f"as of {rows[0]['date']}")
 
 
-def build_core_pce_row(cache: dict) -> dict:
-    rows = fetch_fred("PCEPILFE", cache, limit=15)
-    if not rows or len(rows) < 13:
+def build_core_pce_row(indicators: dict) -> dict:
+    d = indicators.get("core_pce", {})
+    cur, pri, date = d.get("current"), d.get("prior"), d.get("date", "")
+    if cur is None:
         return unavailable_row("Core PCE YoY")
-    cur_yoy = (rows[0]["value"] / rows[12]["value"] - 1) * 100
-    pri_yoy = (rows[1]["value"] / rows[13]["value"] - 1) * 100 if len(rows) >= 14 else None
-    dir_ = direction(cur_yoy, pri_yoy)
-    above = cur_yoy >= 2.5
+    dir_ = direction(cur, pri)
     signal = (
-        f"Core PCE {cur_yoy:.1f}% YoY — Fed's preferred gauge; "
-        + ("above 2.5%, policy stays restrictive." if above else "approaching 2% target.")
+        f"Core PCE {cur:.1f}% YoY — Fed's preferred gauge; "
+        + ("above 2.5%, policy stays restrictive." if cur >= 2.5 else "approaching 2% target.")
     )
-    return make_row("Core PCE YoY", fmt_pct(cur_yoy, 1), fmt_pct(pri_yoy, 1) if pri_yoy else None, dir_, signal,
-                    "ok", "FRED", "PCEPILFE", f"as of {rows[0]['date']}")
+    return make_row("Core PCE YoY", fmt_pct(cur, 1), fmt_pct(pri, 1) if pri else None, dir_, signal,
+                    "ok", "Claude Sonnet / web search", "Core PCE", f"as of {date}")
 
 
-def build_mfg_pmi_row(cache: dict) -> dict:
-    rows = fetch_fred("MFGPMNSA", cache, limit=3)
-    cur, pri, date = fred_pair(rows)
+def build_mfg_pmi_row(indicators: dict) -> dict:
+    d = indicators.get("mfg_pmi", {})
+    cur, pri, date = d.get("current"), d.get("prior"), d.get("date", "")
     if cur is None:
         return unavailable_row("ISM Manufacturing PMI")
     dir_ = direction(cur, pri)
@@ -485,22 +581,22 @@ def build_mfg_pmi_row(cache: dict) -> dict:
         f"PMI {cur:.1f} — manufacturing {'expanding' if cur >= 50 else 'contracting'}; "
         + ("industrial demand supported." if cur >= 50 else "industrial headwinds.")
     )
-    return make_row("ISM Manufacturing PMI", fmt_price(cur, 1), fmt_price(pri, 1), dir_, signal,
-                    "ok", "FRED", "MFGPMNSA", f"as of {date}")
+    return make_row("ISM Manufacturing PMI", fmt_price(cur, 1), fmt_price(pri, 1) if pri else None, dir_, signal,
+                    "ok", "Claude Sonnet / web search", "ISM Manufacturing PMI", f"as of {date}")
 
 
-def build_svc_pmi_row(cache: dict) -> dict:
-    rows = fetch_fred("NMFCI", cache, limit=3)
-    cur, pri, date = fred_pair(rows)
+def build_svc_pmi_row(indicators: dict) -> dict:
+    d = indicators.get("svc_pmi", {})
+    cur, pri, date = d.get("current"), d.get("prior"), d.get("date", "")
     if cur is None:
-        return unavailable_row("ISM Services PMI", "FRED NMFCI series unavailable")
+        return unavailable_row("ISM Services PMI")
     dir_ = direction(cur, pri)
     signal = (
         f"Services NMI {cur:.1f} — services {'expanding' if cur >= 50 else 'contracting'}; "
         + ("consumer demand holding." if cur >= 50 else "demand softening.")
     )
-    return make_row("ISM Services PMI", fmt_price(cur, 1), fmt_price(pri, 1), dir_, signal,
-                    "ok", "FRED", "NMFCI", f"as of {date}")
+    return make_row("ISM Services PMI", fmt_price(cur, 1), fmt_price(pri, 1) if pri else None, dir_, signal,
+                    "ok", "Claude Sonnet / web search", "ISM Services NMI", f"as of {date}")
 
 
 def build_unemployment_row(cache: dict) -> dict:
@@ -519,9 +615,9 @@ def build_unemployment_row(cache: dict) -> dict:
                     "ok", "BLS", "LNS14000000", f"as of {date}")
 
 
-def build_claims_row(cache: dict) -> dict:
-    rows = fetch_fred("ICSA", cache, ttl=TTL_WEEKLY, limit=3)
-    cur, pri, date = fred_pair(rows)
+def build_claims_row(indicators: dict) -> dict:
+    d = indicators.get("claims", {})
+    cur, pri, date = d.get("current"), d.get("prior"), d.get("date", "")
     if cur is None:
         return unavailable_row("Initial Jobless Claims")
     dir_ = direction(cur, pri)
@@ -534,12 +630,12 @@ def build_claims_row(cache: dict) -> dict:
     else:
         signal = f"Claims {cur_k:.0f}k — historically low; labor market resilient."
     return make_row("Initial Jobless Claims", f"{cur_k:.0f}k", f"{pri_k:.0f}k" if pri_k else None, dir_, signal,
-                    "ok", "FRED", "ICSA", f"as of {date}")
+                    "ok", "Claude Sonnet / web search", "Initial Jobless Claims", f"as of {date}")
 
 
-def build_gdp_row(cache: dict) -> dict:
-    rows = fetch_fred("A191RL1Q225SBEA", cache, limit=3)
-    cur, pri, date = fred_pair(rows)
+def build_gdp_row(indicators: dict) -> dict:
+    d = indicators.get("gdp", {})
+    cur, pri, date = d.get("current"), d.get("prior"), d.get("date", "")
     if cur is None:
         return unavailable_row("US GDP")
     dir_ = direction(cur, pri)
@@ -550,7 +646,7 @@ def build_gdp_row(cache: dict) -> dict:
     else:
         signal = f"Real GDP {cur:.2f}% annualized — contraction; recession risk rising."
     return make_row("US GDP", fmt_pct(cur, 2), fmt_pct(pri, 2), dir_, signal,
-                    "ok", "FRED", "A191RL1Q225SBEA", f"quarterly annualized, as of {date}")
+                    "ok", "Claude Sonnet / web search", "Real GDP", f"quarterly annualized, as of {date}")
 
 
 # ---------------------------------------------------------------------------
@@ -560,7 +656,7 @@ def build_gdp_row(cache: dict) -> dict:
 def build_macro_scan_payload(force_refresh: bool = False) -> dict:
     cache = {} if force_refresh else load_cache()
 
-    print("  Fetching market data (yfinance)...")
+    print("  Fetching market data (yfinance)...", flush=True)
     sp500  = build_index_row("S&P 500",       "^GSPC",     cache)
     nasdaq = build_index_row("Nasdaq",         "^IXIC",     cache)
     rut    = build_index_row("Russell 2000",   "^RUT",      cache)
@@ -569,20 +665,21 @@ def build_macro_scan_payload(force_refresh: bool = False) -> dict:
     gold   = build_gold_row(cache)
     dxy    = build_dxy_row(cache)
 
-    print("  Fetching yield / rate data (yfinance + FRED)...")
+    print("  Fetching yield / rate data (yfinance + FRED)...", flush=True)
     fed    = build_fed_funds_row(cache)
     ten_y  = build_10y_row(cache)
     two_y  = build_2y_row(cache)
     spread = build_spread_row(ten_y, two_y)
 
-    print("  Fetching economic indicators (FRED)...")
+    print("  Fetching economic indicators (BLS + Claude Sonnet web search)...", flush=True)
+    indicators = fetch_economic_indicators_via_sonnet(cache)
     cpi    = build_cpi_row(cache)
-    pce    = build_core_pce_row(cache)
-    mfg    = build_mfg_pmi_row(cache)
-    svc    = build_svc_pmi_row(cache)
+    pce    = build_core_pce_row(indicators)
+    mfg    = build_mfg_pmi_row(indicators)
+    svc    = build_svc_pmi_row(indicators)
     unemp  = build_unemployment_row(cache)
-    claims = build_claims_row(cache)
-    gdp    = build_gdp_row(cache)
+    claims = build_claims_row(indicators)
+    gdp    = build_gdp_row(indicators)
 
     save_cache(cache)
 
@@ -602,7 +699,7 @@ def build_macro_scan_payload(force_refresh: bool = False) -> dict:
     return {
         "function": "research-macro-scan",
         "generated_at": utc_now().isoformat(),
-        "providers": ["Yahoo Finance / yfinance", "BLS (Bureau of Labor Statistics)", "FRED (Federal Reserve Economic Data)"],
+        "providers": ["Yahoo Finance / yfinance", "BLS (Bureau of Labor Statistics)", "Claude Sonnet / web search"],
         "rows": rows,
         "limitations": limitations,
         "proxy_rows": proxy_rows,
@@ -665,7 +762,7 @@ def main() -> None:
     load_env_file(ENV_PATH)
     args = parse_args()
 
-    print(f"[macro-scan] Starting (yfinance + FRED)", flush=True)
+    print(f"[macro-scan] Starting (yfinance + BLS + Sonnet)", flush=True)
     payload = invoke_api_function(
         args.command,
         output=args.output,
