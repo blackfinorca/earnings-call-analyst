@@ -135,9 +135,9 @@ its debts, fund its operations, and avoid emergency dilution?
 | 3-4   | Debt-to-Equity 1.0-2.0, OR free cash flow inconsistent (positive some years, negative others). Refinancing risk within 2 years. |
 | 1-2   | Debt-to-Equity > 2.0, OR negative free cash flow, OR debt maturities within 18 months with refinancing risk at higher rates. Balance sheet is a liability, not an asset. |
 
-Data source: JSON fields — totalDebt, totalCash, debtToEquity,
-freeCashflow, currentRatio. Calculate interest coverage from
-operatingIncome / interestExpense if available.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: totalDebt, totalCash, debtToEquity, freeCashflow, currentRatio.
+Calculate interest coverage from operatingIncome / interestExpense if available.
 
 **Category 3: Capital Allocation Discipline (1-10)**
 
@@ -163,11 +163,12 @@ better off if management returned the cash.
 | 3-4   | Recent large acquisition at premium valuation with unclear synergies. OR SBC > 8% of revenue (significant shareholder dilution). OR ROIC declining toward WACC. OR diluted share count growing > 2% per year. |
 | 1-2   | History of value-destroying acquisitions (goodwill writedowns on balance sheet). ROIC below WACC — the company destroys capital. SBC > 10% of revenue. Serial equity issuance diluting existing shareholders. |
 
-Data source: Calculate ROIC from JSON (operatingIncome × (1 - taxRate)
-/ (totalDebt + totalStockholderEquity - totalCash)). Estimate WACC
-at 9% for most companies (or use 10Y Treasury + 5% equity risk premium).
+Data source: [M3A Universe generation/universe-generation-api.json] —
+calculate ROIC from operatingIncome × (1 - taxRate) / (totalDebt +
+totalStockholderEquity - totalCash). Estimate WACC at 9% for most
+companies (or use 10Y Treasury + 5% equity risk premium).
 SBC from cashflow statement (stockBasedCompensation / totalRevenue).
-Diluted shares from JSON (sharesOutstanding trend over 3 years).
+Diluted shares from sharesOutstanding trend over 3 years.
 
 **Category 4: Management Quality (1-10)**
 
@@ -185,7 +186,8 @@ short-term optionality.
 | 1-2   | Governance red flags: excessive compensation relative to peers, related-party transactions, accounting restatements, board lacks independence, or SEC investigations. |
 
 Data source: Web search for management tenure, insider ownership,
-acquisition history. JSON fields for ROIC trend calculation.
+acquisition history. [M3A Universe generation/universe-generation-api.json]
+fields for ROIC trend calculation.
 
 **Category 5: Downside Risk Profile (1-10)**
 
@@ -208,9 +210,9 @@ stock moves 50% more than the market in both directions.
 | 3-4   | Max drawdown 50-65%. High beta (> 1.2). OR binary event upcoming within investment horizon (FDA approval, major litigation ruling, regulatory action). OR significant customer concentration (> 25% from one client). |
 | 1-2   | Max drawdown > 65%. Extreme volatility or beta. Existential binary risk. History of severe earnings misses (> 20% below estimates). Or: single-product company with no diversification. |
 
-Data source: JSON — beta field. Calculate max drawdown from
-historical price data if available. Web search for customer
-concentration and binary event risk.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+beta field. Calculate max drawdown from historical price data if available.
+Web search for customer concentration and binary event risk.
 
 POSITION SIZING LINKAGE: Stocks scoring 1-3 on Downside Risk
 should NEVER be core positions (max 5% allocation). Stocks
@@ -241,8 +243,8 @@ is much more valuable because it signals expanding demand.
 | 3-4   | Revenue growth 0-5% YoY. OR decelerating from higher levels (grew 15% last year, growing 7% now — the trend matters). |
 | 1-2   | Revenue declining YoY. |
 
-Data source: JSON fields — revenueGrowth, totalRevenue.
-Compare to prior periods if quarterly data available.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: revenueGrowth, totalRevenue. Compare to prior periods if quarterly data available.
 
 **Category 7: Earnings Growth Potential (1-10)**
 
@@ -261,8 +263,8 @@ than the last (operating leverage).
 | 3-4   | EPS growth 0-5%. OR margins compressing (revenue grows but costs grow faster — a warning sign). |
 | 1-2   | EPS declining or negative. The company is becoming less profitable. |
 
-Data source: JSON fields — earningsGrowth, operatingMargins,
-trailingEps. Compare to forwardEps for trajectory.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: earningsGrowth, operatingMargins, trailingEps. Compare to forwardEps for trajectory.
 
 **Category 8: TAM Expansion (1-10)**
 
@@ -311,9 +313,10 @@ The key metrics explained:
 | 3-4   | Forward P/E significantly above sector average (> 1.5x sector P/E). PEG 2.0-3.0. You're paying a hefty premium and need strong execution to justify it. |
 | 1-2   | Forward P/E > 2x sector average. OR negative earnings making P/E meaningless. OR FCF yield below the 10Y Treasury yield (you'd earn more from a government bond with zero risk). |
 
-Data source: JSON fields — forwardPE, trailingPE, freeCashflow,
-marketCap, pegRatio. Calculate FCF yield = freeCashflow / marketCap.
-10Y Treasury yield from M1 macro data.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: forwardPE, trailingPE, freeCashflow, marketCap, pegRatio.
+Calculate FCF yield = freeCashflow / marketCap.
+10Y Treasury yield from [M1 macro scan/research-macro-scan.json].
 
 **Category 10: Earnings Revision Momentum (1-10)**
 
@@ -383,13 +386,14 @@ market; tailwinds measure the forces pushing that market to grow.
 
 | Score | Criteria |
 |-------|----------|
-| 9-10  | Multiple structural tailwinds converging simultaneously (e.g., AI investment + semiconductor reshoring + government subsidies). Sector ranked #1-2 in M2 sector analysis. Tailwinds are policy-supported (government spending or regulation creating durable demand). |
-| 7-8   | One strong structural tailwind with multi-year duration. Sector ranked in top 5 in M2. |
+| 9-10  | Multiple structural tailwinds converging simultaneously (e.g., AI investment + semiconductor reshoring + government subsidies). Sector ranked #1-2 in [M2 Sector ranking/sector-ranking-report.md]. Tailwinds are policy-supported (government spending or regulation creating durable demand). |
+| 7-8   | One strong structural tailwind with multi-year duration. Sector ranked in top 5 in [M2 Sector ranking/sector-ranking-report.md]. |
 | 5-6   | Sector is neutral — no major tailwinds or headwinds. Growth tracks the economy. |
 | 3-4   | Sector faces headwinds (regulatory pressure, cyclical downturn, technological disruption). |
 | 1-2   | Sector in structural decline. The forces are working against every company in the industry. |
 
-Data source: M2 sector scoring and M1 macro themes.
+Data source: [M2 Sector ranking/sector-ranking-report.md] sector scoring
+and [M1 macro scan/research-macro-scan.json] macro themes.
 
 **Category 13: Momentum & Technical Setup (1-10)**
 
@@ -418,8 +422,9 @@ Key concepts explained:
 | 3-4   | Price below 200-day MA but holding above recent lows (not in freefall). RSI < 40. Downtrend but potentially forming a bottom. |
 | 1-2   | Price below both MAs and making new lows. Death cross (50-day crosses below 200-day — a bearish signal). RSI < 30 with no reversal signal. Volume increasing on down-days. Active distribution. |
 
-Data source: JSON price data for MA calculations. Web search for
-RSI and volume analysis if not in JSON.
+Data source: [M3A Universe generation/universe-generation-api.json]
+price data for MA calculations. Web search for RSI and volume analysis
+if not in JSON.
 
 **Category 14: Catalyst Pipeline (1-10)**
 
@@ -462,8 +467,9 @@ a shifting narrative.
 | 3-4   | Majority "Hold" ratings. OR recent downgrades trending. Average price target near or below current price. |
 | 1-2   | Majority "Sell" or "Underperform." Active downgrades. Average price target materially below current price. |
 
-Data source: JSON fields — recommendationKey, targetMeanPrice,
-numberOfAnalystOpinions. Web search for recent rating changes.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: recommendationKey, targetMeanPrice, numberOfAnalystOpinions.
+Web search for recent rating changes.
 
 **Category 16: Positioning & Crowding (1-10)**
 
@@ -488,7 +494,8 @@ room for buying pressure to drive the price higher.
 | 3-4   | Heavily owned by institutions (> 85% institutional ownership in a mid-cap). OR appears in 20+ hedge fund 13F filings (the "hedge fund hotel" — everyone already owns it). OR short interest rising (active short thesis developing against the consensus). |
 | 1-2   | Extreme crowding: top 10 institutional holders own > 40% of float (any one of them selling would crater the price). OR short interest > 15% and rising. OR recent large institutional liquidation visible in 13F filings. This is a stock where the downside risk comes from positioning, not fundamentals. |
 
-Data source: JSON fields — heldPercentInstitutions, shortPercentOfFloat.
+Data source: [M3A Universe generation/universe-generation-api.json] —
+fields: heldPercentInstitutions, shortPercentOfFloat.
 Web search for "[TICKER] top institutional holders" and
 "[TICKER] hedge fund ownership 13F."
 

@@ -117,11 +117,21 @@ STAGES: list[Stage] = [
         id="m3b",
         label="M3B Stock Screening",
         description=(
-            "Claude Haiku scores every stock across 5 lenses (rotation,\n"
+            "Claude Sonnet scores every stock across 5 lenses (rotation,\n"
             "    macro, factor, quality, diversification) and ranks them."
         ),
         script="M3B stock screening/stock-screening.py",
         output="M3B stock screening/stock-screener.txt",
+    ),
+    Stage(
+        id="m5",
+        label="M5  Portfolio Construction",
+        description=(
+            "Claude Sonnet builds a concentrated equity portfolio from the\n"
+            "    scored universe, applying a 16-category tiered scoring model."
+        ),
+        script="M5 Portfolio construction/portfolio-construction.py",
+        output="M5 Portfolio construction/portfolio-construction-report.txt",
     ),
 ]
 

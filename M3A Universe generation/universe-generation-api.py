@@ -12,7 +12,16 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+import math
+import re
+
 import yfinance as yf
+
+try:
+    import anthropic as _anthropic
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    _ANTHROPIC_AVAILABLE = False
 
 
 BASE_DIR   = Path(__file__).resolve().parent
@@ -23,6 +32,14 @@ OUTPUT_PATH = BASE_DIR / "universe-generation-api.json"
 CACHE_TTL_DAYS     = 7
 RATE_LIMIT_SECONDS = 0.3   # yfinance / Yahoo rate limit buffer
 RETRY_DELAY        = 2.0   # seconds to wait before a single retry
+
+ANTHROPIC_MODEL      = "claude-sonnet-4-6"
+WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
+WEB_SEARCH_MAX_USES  = 30
+ENRICH_BATCH_SIZE    = 10  # tickers per Sonnet web-search call
+
+# Fields added in this version — cached entries missing these will be re-fetched
+_CACHE_SENTINEL_FIELDS = {"shares_outstanding", "stock_based_compensation"}
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +89,27 @@ def safe_div(a, b, ndigits: int = 2) -> float | None:
         return round(a / b, ndigits)
     except (TypeError, ZeroDivisionError):
         return None
+
+
+def _is_nan(val) -> bool:
+    """Return True for float NaN, None, or pandas NA."""
+    if val is None:
+        return True
+    try:
+        return math.isnan(float(val))
+    except (TypeError, ValueError):
+        return False
+
+
+def _stmt_row(df, *labels: str) -> float | None:
+    """Return the most-recent annual value for the first matching row label in a DataFrame."""
+    if df is None or df.empty:
+        return None
+    for label in labels:
+        if label in df.index:
+            val = df.loc[label].iloc[0]
+            return None if _is_nan(val) else float(val)
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +331,94 @@ def fetch_fundamentals(symbol: str) -> dict:
         "short_ratio":             sv(info, "shortRatio"),
         "institutional_ownership": pct_val(info, "institutionsPercentHeld"),
         "insider_ownership":       pct_val(info, "insidersPercentHeld"),
+
+        # Analyst breadth
+        "analyst_count":           sv(info, "numberOfAnalystOpinions"),
+
+        # Share count (for dilution tracking, Cat 3)
+        "shares_outstanding":      sv(info, "sharesOutstanding"),
     }
+
+
+# ---------------------------------------------------------------------------
+# Supplemental yfinance data — financial statements + analyst ratings
+# ---------------------------------------------------------------------------
+
+def fetch_statements(symbol: str) -> dict:
+    """
+    Fetch line items from annual income statement, balance sheet, and cash flow
+    that are needed for M5 scoring (ROIC, interest coverage, capital allocation).
+    Returns a dict of fields to merge into fundamentals.
+    """
+    result: dict = {
+        "operating_income":         None,
+        "interest_expense":         None,
+        "total_stockholder_equity": None,
+        "stock_based_compensation": None,
+        "tax_provision":            None,
+        "pretax_income":            None,
+    }
+    tk = yf.Ticker(symbol)
+
+    # Income statement — operating income, interest expense, tax rate inputs
+    try:
+        stmt = tk.income_stmt
+        result["operating_income"]  = _stmt_row(stmt, "Operating Income", "EBIT")
+        ie = _stmt_row(stmt, "Interest Expense", "Interest Expense Non Operating")
+        result["interest_expense"]  = abs(ie) if ie is not None else None
+        result["tax_provision"]     = _stmt_row(stmt, "Tax Provision", "Income Tax Expense")
+        result["pretax_income"]     = _stmt_row(stmt, "Pretax Income", "Income Before Tax")
+    except Exception:
+        pass
+
+    # Balance sheet — stockholder equity
+    try:
+        bs = tk.balance_sheet
+        result["total_stockholder_equity"] = _stmt_row(
+            bs,
+            "Stockholders Equity",
+            "Total Stockholder Equity",
+            "Common Stock Equity",
+            "Total Equity Gross Minority Interest",
+        )
+    except Exception:
+        pass
+
+    # Cash flow — stock-based compensation
+    try:
+        cf = tk.cashflow
+        sbc = _stmt_row(cf, "Stock Based Compensation", "Share Based Compensation Expense")
+        result["stock_based_compensation"] = abs(sbc) if sbc is not None else None
+    except Exception:
+        pass
+
+    return result
+
+
+def fetch_recommendations(symbol: str) -> dict:
+    """
+    Fetch analyst buy/hold/sell breakdown from yfinance recommendations_summary.
+    Returns a dict with analyst_buy_count, analyst_hold_count, analyst_sell_count.
+    """
+    result: dict = {
+        "analyst_buy_count":  None,
+        "analyst_hold_count": None,
+        "analyst_sell_count": None,
+    }
+    try:
+        tk      = yf.Ticker(symbol)
+        summary = tk.recommendations_summary
+        if summary is None or summary.empty:
+            return result
+        row = summary.iloc[0]
+        def _int(val) -> int:
+            return int(val) if val is not None and not _is_nan(val) else 0
+        result["analyst_buy_count"]  = _int(row.get("strongBuy")) + _int(row.get("buy"))
+        result["analyst_hold_count"] = _int(row.get("hold"))
+        result["analyst_sell_count"] = _int(row.get("sell")) + _int(row.get("strongSell"))
+    except Exception:
+        pass
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -333,9 +458,35 @@ def compute_derived(fundamentals: dict, technicals: dict) -> dict:
         round(mktcap / fcf, 2) if fcf and fcf > 0 and mktcap else None
     )
 
-    derived["analyst_buy_count"]  = None
-    derived["analyst_hold_count"] = None
-    derived["analyst_sell_count"] = None
+    # Interest coverage ratio = operating_income / interest_expense  (Cat 2)
+    op_inc  = fundamentals.get("operating_income")
+    int_exp = fundamentals.get("interest_expense")
+    derived["interest_coverage"] = (
+        round(op_inc / int_exp, 2)
+        if op_inc is not None and int_exp and int_exp > 0
+        else None
+    )
+
+    # ROIC approximation = NOPAT / invested_capital  (Cat 3)
+    equity  = fundamentals.get("total_stockholder_equity")
+    tax_p   = fundamentals.get("tax_provision")
+    pre_tax = fundamentals.get("pretax_income")
+    debt    = fundamentals.get("total_debt") or 0
+    cash    = fundamentals.get("cash_and_equivalents") or 0
+    if op_inc is not None and equity is not None:
+        tax_rate   = (tax_p / pre_tax) if tax_p and pre_tax and pre_tax != 0 else 0.21
+        nopat      = op_inc * (1 - min(max(tax_rate, 0), 0.5))
+        inv_cap    = debt + equity - cash
+        derived["roic_approx"] = round(nopat / inv_cap * 100, 2) if inv_cap and inv_cap != 0 else None
+    else:
+        derived["roic_approx"] = None
+
+    # SBC as % of revenue  (Cat 3)
+    sbc = fundamentals.get("stock_based_compensation")
+    rev = fundamentals.get("revenue_ttm")
+    derived["sbc_pct_of_revenue"] = (
+        round(sbc / rev * 100, 2) if sbc and rev and rev > 0 else None
+    )
 
     price  = technicals.get("price_current")
     target = fundamentals.get("price_target_mean")
@@ -409,10 +560,15 @@ def load_cache(output_path: Path) -> dict[str, dict]:
             fetched_at = datetime.fromisoformat(fetched_str)
             if fetched_at.tzinfo is None:
                 fetched_at = fetched_at.replace(tzinfo=timezone.utc)
-            if fetched_at > cutoff:
-                cache[entry["ticker"]] = entry
+            if fetched_at <= cutoff:
+                continue
         except ValueError:
             continue
+        # Invalidate entries that predate the new statement-derived fields
+        fund = entry.get("fundamentals", {})
+        if not all(f in fund for f in _CACHE_SENTINEL_FIELDS):
+            continue
+        cache[entry["ticker"]] = entry
     return cache
 
 
@@ -447,6 +603,10 @@ def fetch_all(tickers: list[dict], cache: dict[str, dict]) -> tuple[list, list]:
             technicals   = fetch_technicals(ticker_str)
             fundamentals = fetch_fundamentals(ticker_str)
 
+            # Merge statement-derived fields and analyst breakdown into fundamentals
+            fundamentals.update(fetch_statements(ticker_str))
+            fundamentals.update(fetch_recommendations(ticker_str))
+
             if technicals is None:
                 print(f"  SKIP: insufficient price history for {ticker_str}")
                 failed.append({"ticker": ticker_str, "reason": "insufficient_price_history"})
@@ -479,6 +639,132 @@ def fetch_all(tickers: list[dict], cache: dict[str, dict]) -> tuple[list, list]:
         time.sleep(RATE_LIMIT_SECONDS)
 
     return results, failed
+
+
+# ---------------------------------------------------------------------------
+# Web-search enrichment — fill null peg_ratio / institutional_ownership /
+# analyst breakdown via Claude Sonnet with web search
+# ---------------------------------------------------------------------------
+
+def _resolve_api_key() -> str | None:
+    return os.getenv("ANTHROPIC_API_KEY")
+
+
+def _parse_enrich_json(text: str) -> dict | None:
+    """Extract the first valid JSON object from Claude's response."""
+    # Try direct parse
+    try:
+        obj = json.loads(text)
+        if isinstance(obj, dict):
+            return obj
+    except json.JSONDecodeError:
+        pass
+    # Find first {...} block
+    decoder = json.JSONDecoder()
+    for m in re.finditer(r"\{", text):
+        try:
+            obj, _ = decoder.raw_decode(text, m.start())
+            if isinstance(obj, dict):
+                return obj
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
+def _enrich_batch(client, stocks: list[dict]) -> None:
+    """Call Claude Sonnet with web search for one batch of tickers. Modifies in-place."""
+    ticker_list = [
+        {"ticker": s["ticker"], "name": s.get("company_name", "")}
+        for s in stocks
+    ]
+
+    system = (
+        "You are a financial data lookup tool. For each ticker, use web search to find "
+        "the most current values and return ONLY a raw JSON object (no markdown, no "
+        "commentary). Format exactly:\n"
+        '{"TICKER": {"peg_ratio": number_or_null, "institutional_ownership_pct": '
+        'number_or_null, "analyst_buy_count": integer_or_null, '
+        '"analyst_hold_count": integer_or_null, "analyst_sell_count": integer_or_null}}'
+    )
+    user_msg = (
+        "Look up PEG ratio, institutional ownership %, and analyst buy/hold/sell counts "
+        f"for these tickers: {json.dumps(ticker_list)}\n\n"
+        "Search sources like Yahoo Finance, Macrotrends, or Macroaxis. "
+        "Return only the JSON object."
+    )
+
+    messages: list[dict] = [{"role": "user", "content": user_msg}]
+    tools = [{"type": WEB_SEARCH_TOOL_TYPE, "name": "web_search", "max_uses": WEB_SEARCH_MAX_USES}]
+
+    response = None
+    for _ in range(6):  # handle pause_turn
+        response = client.messages.create(
+            model=ANTHROPIC_MODEL,
+            system=system,
+            max_tokens=4000,
+            messages=messages,
+            tools=tools,
+        )
+        if response.stop_reason != "pause_turn":
+            break
+        messages = messages + [{"role": "assistant", "content": response.content}]
+
+    if response is None:
+        return
+
+    text = " ".join(
+        b.text for b in response.content
+        if hasattr(b, "type") and b.type == "text" and b.text
+    )
+    enriched = _parse_enrich_json(text)
+    if not enriched:
+        print(f"  [web-enrich] Could not parse response for batch {[s['ticker'] for s in stocks]}")
+        return
+
+    for stock in stocks:
+        ticker = stock["ticker"]
+        data   = enriched.get(ticker, {})
+        if not data:
+            continue
+        fund = stock.setdefault("fundamentals", {})
+
+        if data.get("peg_ratio") is not None and fund.get("peg_ratio") is None:
+            fund["peg_ratio"] = data["peg_ratio"]
+
+        if data.get("institutional_ownership_pct") is not None and fund.get("institutional_ownership") is None:
+            fund["institutional_ownership"] = data["institutional_ownership_pct"]
+
+        if data.get("analyst_buy_count") is not None and fund.get("analyst_buy_count") is None:
+            fund["analyst_buy_count"]  = data.get("analyst_buy_count")
+            fund["analyst_hold_count"] = data.get("analyst_hold_count")
+            fund["analyst_sell_count"] = data.get("analyst_sell_count")
+
+        filled = [k for k in ("peg_ratio", "institutional_ownership", "analyst_buy_count") if fund.get(k) is not None]
+        if filled:
+            print(f"  [web-enrich] {ticker}: filled {filled}")
+
+
+def enrich_with_web_search(client, stocks: list[dict]) -> None:
+    """
+    For stocks where peg_ratio / institutional_ownership / analyst_buy_count are null,
+    call Claude Sonnet with web search to fill them. Modifies stocks in-place.
+    """
+    _ENRICH_FIELDS = ("peg_ratio", "institutional_ownership", "analyst_buy_count")
+    needs = [
+        s for s in stocks
+        if any(s.get("fundamentals", {}).get(f) is None for f in _ENRICH_FIELDS)
+    ]
+    if not needs:
+        return
+
+    print(f"\n[web-enrich] Enriching {len(needs)} stock(s) via Claude Sonnet web search...")
+    for i in range(0, len(needs), ENRICH_BATCH_SIZE):
+        batch = needs[i:i + ENRICH_BATCH_SIZE]
+        tickers = [s["ticker"] for s in batch]
+        print(f"  Batch {i // ENRICH_BATCH_SIZE + 1}: {tickers}")
+        _enrich_batch(client, batch)
+        if i + ENRICH_BATCH_SIZE < len(needs):
+            time.sleep(1.0)
 
 
 # ---------------------------------------------------------------------------
@@ -610,6 +896,19 @@ def main() -> None:
 
     print(f"Fetching yfinance data for {len(tickers)} ticker(s)...")
     results, failed = fetch_all(tickers, cache)
+
+    # Web-search enrichment for null peg_ratio / institutional_ownership / analyst counts
+    if _ANTHROPIC_AVAILABLE:
+        api_key = _resolve_api_key()
+        if api_key:
+            client = _anthropic.Anthropic(api_key=api_key)
+            all_stocks = results  # includes both passed and flagged
+            enrich_with_web_search(client, all_stocks)
+        else:
+            print("\n[web-enrich] ANTHROPIC_API_KEY not set — skipping web enrichment.")
+    else:
+        print("\n[web-enrich] anthropic package not installed — skipping web enrichment.")
+
     build_output(results, failed, universe_meta, output_path)
 
 
