@@ -131,7 +131,7 @@ STAGES: list[Stage] = [
             "    scored universe, applying a 16-category tiered scoring model."
         ),
         script="M5 Portfolio construction/portfolio-construction.py",
-        output="M5 Portfolio construction/portfolio-construction-report.txt",
+        output="M5 Portfolio construction/portfolio-construction-output.md",
     ),
 ]
 
