@@ -20,7 +20,7 @@ DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
 DEFAULT_SCREENER_INPUT_PATH = BASE_DIR / "M3B stock screening" / "stock-screener.txt"
 DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "universe-generation-api.json"
 DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_name("portfolio-construction-report.txt")
+DEFAULT_OUTPUT_PATH = Path(__file__).with_name("portfolio-construction-output.md")
 
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
