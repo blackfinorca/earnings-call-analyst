@@ -37,7 +37,7 @@ SCREENING_FIELDS = {
     # Lens 4 — quality growth
     "free_cash_flow_ttm",
 }
-MAX_OUTPUT_TOKENS = 16000
+MAX_OUTPUT_TOKENS = 32000
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_PAUSE_TURNS = 4
 DEFAULT_MAX_RETRIES = 5
@@ -120,7 +120,9 @@ def build_user_message(api_input_text: str) -> str:
         "```\n\n"
         "Score every stock in the `stocks` array using all five lenses "
         "and produce the full output as specified in the prompt. "
-        "Write plain text only — no markdown formatting."
+        "Write plain text only — no markdown formatting. "
+        "Do NOT output reasoning steps or intermediate calculations — "
+        "output ONLY the final report starting with PRE-OUTPUT CHECKS."
     )
 
 

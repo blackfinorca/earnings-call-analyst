@@ -25,7 +25,7 @@ DEFAULT_OUTPUT_PATH = Path(__file__).with_name("portfolio-construction-output.md
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
 
-MAX_OUTPUT_TOKENS = 16000
+MAX_OUTPUT_TOKENS = 32000
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_PAUSE_TURNS = 4
 DEFAULT_MAX_RETRIES = 5
@@ -97,7 +97,9 @@ def build_user_message(
         f"{macro_text.strip()}\n"
         "```\n\n"
         "Construct the portfolio and produce the full 8-section output as "
-        "specified in the prompt. Write plain text only — no markdown formatting."
+        "specified in the prompt. Write plain text only — no markdown formatting. "
+        "Do NOT output reasoning steps or intermediate calculations — "
+        "output ONLY the final report starting with ## PORTFOLIO SUMMARY."
     )
 
 

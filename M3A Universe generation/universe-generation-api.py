@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import math
+import random
 import re
 
 import yfinance as yf
@@ -29,14 +30,12 @@ ENV_PATH   = BASE_DIR.parent / ".env"
 INPUT_PATH = BASE_DIR / "universe-generation.json"
 OUTPUT_PATH = BASE_DIR / "universe-generation-api.json"
 
-CACHE_TTL_DAYS     = 7
+CACHE_TTL_DAYS     = 0   # 0 = always fetch fresh data on every run
 RATE_LIMIT_SECONDS = 0.3   # yfinance / Yahoo rate limit buffer
 RETRY_DELAY        = 2.0   # seconds to wait before a single retry
 
 ANTHROPIC_MODEL      = "claude-sonnet-4-6"
-WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
-WEB_SEARCH_MAX_USES  = 30
-ENRICH_BATCH_SIZE    = 10  # tickers per Sonnet web-search call
+HAIKU_MODEL          = "claude-haiku-4-5-20251001"  # fast model for enrichment
 
 # Fields added in this version — cached entries missing these will be re-fetched
 _CACHE_SENTINEL_FIELDS = {"shares_outstanding", "stock_based_compensation"}
@@ -284,7 +283,7 @@ def fetch_fundamentals(symbol: str) -> dict:
         # Valuation
         "pe_trailing":             sv(info, "trailingPE"),
         "pe_forward":              pe_forward,
-        "peg_ratio":               sv(info, "pegRatio"),
+        "peg_ratio":               sv(info, "pegRatio") or sv(info, "trailingPegRatio"),
         "price_to_sales":          sv(info, "priceToSalesTrailing12Months"),
         "price_to_book":           sv(info, "priceToBook"),
         "ev_ebitda":               sv(info, "enterpriseToEbitda"),
@@ -329,8 +328,14 @@ def fetch_fundamentals(symbol: str) -> dict:
         # Sentiment
         "short_interest_pct":      pct_val(info, "shortPercentOfFloat"),
         "short_ratio":             sv(info, "shortRatio"),
-        "institutional_ownership": pct_val(info, "institutionsPercentHeld"),
-        "insider_ownership":       pct_val(info, "insidersPercentHeld"),
+        "institutional_ownership": (
+            pct_val(info, "heldPercentInstitutions")
+            or pct_val(info, "institutionsPercentHeld")
+        ),
+        "insider_ownership":       (
+            pct_val(info, "heldPercentInsiders")
+            or pct_val(info, "insidersPercentHeld")
+        ),
 
         # Analyst breadth
         "analyst_count":           sv(info, "numberOfAnalystOpinions"),
@@ -642,8 +647,8 @@ def fetch_all(tickers: list[dict], cache: dict[str, dict]) -> tuple[list, list]:
 
 
 # ---------------------------------------------------------------------------
-# Web-search enrichment — fill null peg_ratio / institutional_ownership /
-# analyst breakdown via Claude Sonnet with web search
+# Haiku enrichment — fill null peg_ratio / institutional_ownership via a
+# single fast Haiku call (knowledge-only, no web search tool)
 # ---------------------------------------------------------------------------
 
 def _resolve_api_key() -> str | None:
@@ -651,15 +656,13 @@ def _resolve_api_key() -> str | None:
 
 
 def _parse_enrich_json(text: str) -> dict | None:
-    """Extract the first valid JSON object from Claude's response."""
-    # Try direct parse
+    """Extract the first valid JSON object from a response string."""
     try:
         obj = json.loads(text)
         if isinstance(obj, dict):
             return obj
     except json.JSONDecodeError:
         pass
-    # Find first {...} block
     decoder = json.JSONDecoder()
     for m in re.finditer(r"\{", text):
         try:
@@ -671,45 +674,73 @@ def _parse_enrich_json(text: str) -> dict | None:
     return None
 
 
-def _enrich_batch(client, stocks: list[dict]) -> None:
-    """Call Claude Sonnet with web search for one batch of tickers. Modifies in-place."""
-    ticker_list = [
-        {"ticker": s["ticker"], "name": s.get("company_name", "")}
-        for s in stocks
+def enrich_with_haiku(client, stocks: list[dict]) -> None:
+    """
+    Single Haiku call (no web search) to fill null peg_ratio and
+    institutional_ownership for stocks where yfinance returned None.
+    Uses Haiku's training-data knowledge — fast, no tool calls.
+    """
+    _ENRICH_FIELDS = ("peg_ratio", "institutional_ownership")
+    needs = [
+        s for s in stocks
+        if any(s.get("fundamentals", {}).get(f) is None for f in _ENRICH_FIELDS)
     ]
+    if not needs:
+        print("[enrich] All peg_ratio / institutional_ownership values present — skipping.", flush=True)
+        return
+
+    ticker_list = [
+        {"ticker": s["ticker"], "name": s.get("company_name", s["ticker"])}
+        for s in needs
+    ]
+    print(f"[enrich] {len(needs)} stock(s) have null fields — asking Haiku to fill...", flush=True)
 
     system = (
-        "You are a financial data lookup tool. For each ticker, use web search to find "
-        "the most current values and return ONLY a raw JSON object (no markdown, no "
-        "commentary). Format exactly:\n"
-        '{"TICKER": {"peg_ratio": number_or_null, "institutional_ownership_pct": '
-        'number_or_null, "analyst_buy_count": integer_or_null, '
-        '"analyst_hold_count": integer_or_null, "analyst_sell_count": integer_or_null}}'
+        "You are a financial data assistant. Return ONLY a raw JSON object with no "
+        "markdown, no code fences, and no commentary. Use null for any value you are "
+        "uncertain about."
     )
     user_msg = (
-        "Look up PEG ratio, institutional ownership %, and analyst buy/hold/sell counts "
-        f"for these tickers: {json.dumps(ticker_list)}\n\n"
-        "Search sources like Yahoo Finance, Macrotrends, or Macroaxis. "
-        "Return only the JSON object."
+        "For each ticker below, provide your best estimate of:\n"
+        "  peg_ratio — trailing or forward PEG ratio (float, or null)\n"
+        "  institutional_ownership_pct — % of shares held by institutions (0-100, or null)\n\n"
+        f"Tickers: {json.dumps(ticker_list)}\n\n"
+        'Return exactly: {"TICKER": {"peg_ratio": number_or_null, '
+        '"institutional_ownership_pct": number_or_null}, ...}'
     )
 
-    messages: list[dict] = [{"role": "user", "content": user_msg}]
-    tools = [{"type": WEB_SEARCH_TOOL_TYPE, "name": "web_search", "max_uses": WEB_SEARCH_MAX_USES}]
+    _MAX_RETRIES = 3
+    _BASE_DELAY  = 2.0
+    _MAX_DELAY   = 30.0
 
     response = None
-    for _ in range(6):  # handle pause_turn
-        response = client.messages.create(
-            model=ANTHROPIC_MODEL,
-            system=system,
-            max_tokens=4000,
-            messages=messages,
-            tools=tools,
-        )
-        if response.stop_reason != "pause_turn":
+    last_exc  = None
+    for attempt in range(_MAX_RETRIES):
+        try:
+            response = client.messages.create(
+                model=HAIKU_MODEL,
+                system=system,
+                max_tokens=2000,
+                temperature=0.0,
+                messages=[{"role": "user", "content": user_msg}],
+            )
             break
-        messages = messages + [{"role": "assistant", "content": response.content}]
+        except _anthropic.RateLimitError as exc:
+            last_exc = exc
+            delay = min(_BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), _MAX_DELAY)
+        except _anthropic.APIStatusError as exc:
+            if exc.status_code < 500:
+                raise
+            last_exc = exc
+            delay = min(_BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), _MAX_DELAY)
+        except _anthropic.APIConnectionError as exc:
+            last_exc = exc
+            delay = min(_BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), _MAX_DELAY)
+        print(f"  [enrich] Retry {attempt + 1}/{_MAX_RETRIES} — waiting {delay:.1f}s...", flush=True)
+        time.sleep(delay)
 
     if response is None:
+        print(f"  [enrich] Failed after {_MAX_RETRIES} retries: {last_exc}", flush=True)
         return
 
     text = " ".join(
@@ -718,53 +749,28 @@ def _enrich_batch(client, stocks: list[dict]) -> None:
     )
     enriched = _parse_enrich_json(text)
     if not enriched:
-        print(f"  [web-enrich] Could not parse response for batch {[s['ticker'] for s in stocks]}")
+        print("  [enrich] Could not parse Haiku response — skipping enrichment.", flush=True)
         return
 
-    for stock in stocks:
+    filled_count = 0
+    for stock in needs:
         ticker = stock["ticker"]
         data   = enriched.get(ticker, {})
         if not data:
             continue
         fund = stock.setdefault("fundamentals", {})
-
+        filled: list[str] = []
         if data.get("peg_ratio") is not None and fund.get("peg_ratio") is None:
             fund["peg_ratio"] = data["peg_ratio"]
-
+            filled.append("peg_ratio")
         if data.get("institutional_ownership_pct") is not None and fund.get("institutional_ownership") is None:
             fund["institutional_ownership"] = data["institutional_ownership_pct"]
-
-        if data.get("analyst_buy_count") is not None and fund.get("analyst_buy_count") is None:
-            fund["analyst_buy_count"]  = data.get("analyst_buy_count")
-            fund["analyst_hold_count"] = data.get("analyst_hold_count")
-            fund["analyst_sell_count"] = data.get("analyst_sell_count")
-
-        filled = [k for k in ("peg_ratio", "institutional_ownership", "analyst_buy_count") if fund.get(k) is not None]
+            filled.append("institutional_ownership")
         if filled:
-            print(f"  [web-enrich] {ticker}: filled {filled}")
+            filled_count += 1
+            print(f"  [enrich] {ticker}: filled {filled}", flush=True)
 
-
-def enrich_with_web_search(client, stocks: list[dict]) -> None:
-    """
-    For stocks where peg_ratio / institutional_ownership / analyst_buy_count are null,
-    call Claude Sonnet with web search to fill them. Modifies stocks in-place.
-    """
-    _ENRICH_FIELDS = ("peg_ratio", "institutional_ownership", "analyst_buy_count")
-    needs = [
-        s for s in stocks
-        if any(s.get("fundamentals", {}).get(f) is None for f in _ENRICH_FIELDS)
-    ]
-    if not needs:
-        return
-
-    print(f"\n[web-enrich] Enriching {len(needs)} stock(s) via Claude Sonnet web search...")
-    for i in range(0, len(needs), ENRICH_BATCH_SIZE):
-        batch = needs[i:i + ENRICH_BATCH_SIZE]
-        tickers = [s["ticker"] for s in batch]
-        print(f"  Batch {i // ENRICH_BATCH_SIZE + 1}: {tickers}")
-        _enrich_batch(client, batch)
-        if i + ENRICH_BATCH_SIZE < len(needs):
-            time.sleep(1.0)
+    print(f"[enrich] Done — enriched {filled_count}/{len(needs)} stock(s).", flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -897,17 +903,16 @@ def main() -> None:
     print(f"Fetching yfinance data for {len(tickers)} ticker(s)...")
     results, failed = fetch_all(tickers, cache)
 
-    # Web-search enrichment for null peg_ratio / institutional_ownership / analyst counts
+    # Haiku enrichment — fast single call to fill null peg_ratio / institutional_ownership
     if _ANTHROPIC_AVAILABLE:
         api_key = _resolve_api_key()
         if api_key:
             client = _anthropic.Anthropic(api_key=api_key)
-            all_stocks = results  # includes both passed and flagged
-            enrich_with_web_search(client, all_stocks)
+            enrich_with_haiku(client, results)
         else:
-            print("\n[web-enrich] ANTHROPIC_API_KEY not set — skipping web enrichment.")
+            print("[enrich] ANTHROPIC_API_KEY not set — skipping enrichment.", flush=True)
     else:
-        print("\n[web-enrich] anthropic package not installed — skipping web enrichment.")
+        print("[enrich] anthropic package not installed — skipping enrichment.", flush=True)
 
     build_output(results, failed, universe_meta, output_path)
 

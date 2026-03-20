@@ -29,6 +29,12 @@ IMPORTANT DATA RULES:
   sparingly and only where the JSON data has gaps.
 - If a score depends on data you cannot verify, cap that score at 6.
 
+CRITICAL OUTPUT RULE:
+Do NOT write your reasoning, scoring calculations, intermediate
+steps, or working to the output. Keep all computation internal.
+Output ONLY the final structured report as specified below.
+The first line of your response must be "## PORTFOLIO SUMMARY".
+
 WRITING RULES:
 - Follow the Layer 1 Writing Philosophy. [file: writing-phylosophy.jsx]
 - Write in complete sentences throughout.

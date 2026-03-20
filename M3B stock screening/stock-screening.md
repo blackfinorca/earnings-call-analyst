@@ -12,6 +12,13 @@ and from `M3A Universe generation/universe-generation.json`.
 
 Execute silently. No confirmations.
 
+**CRITICAL OUTPUT RULE**: Do NOT write your reasoning,
+working calculations, intermediate scoring steps, or
+scratch work to the output. Keep all computation
+internal. Output ONLY the final structured report
+starting with PRE-OUTPUT CHECKS. The first line of
+your response must be "PRE-OUTPUT CHECKS".
+
 ---
 
 ## Scoring Rules

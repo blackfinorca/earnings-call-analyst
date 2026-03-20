@@ -107,7 +107,7 @@ STAGES: list[Stage] = [
         label="M3A Universe API Data Fetch",
         description=(
             "Fetches 12-month price history and fundamentals for every\n"
-            "    ticker via yfinance. Per-ticker results cached for 7 days."
+            "    ticker via yfinance. Always fetches fresh data on each run."
         ),
         script="M3A Universe generation/universe-generation-api.py",
         output="M3A Universe generation/universe-generation-api.json",
