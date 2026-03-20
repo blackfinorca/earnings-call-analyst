@@ -16,11 +16,11 @@ import anthropic
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_PATH = BASE_DIR / ".env"
-DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
-DEFAULT_SCREENER_INPUT_PATH = BASE_DIR / "M3B stock screening" / "stock-screener.txt"
-DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "universe-generation-api.json"
-DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_name("portfolio-construction-output.md")
+DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt-portfolio-construction.md"
+DEFAULT_SCREENER_INPUT_PATH = BASE_DIR / "M3B stock screening" / "output-stock-screener.txt"
+DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "output-universe-generation-api.json"
+DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "output-research-macro-scan.json"
+DEFAULT_OUTPUT_PATH = Path(__file__).parent / "output-portfolio-construction.md"
 
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"

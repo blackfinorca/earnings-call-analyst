@@ -1,0 +1,146 @@
+# Sector Ranking
+
+**Input File:** M1 macro scan/research-macro-scan.json  
+**Generated At:** 2026-03-16T15:23:47+00:00
+
+---
+
+## Market Snapshot
+
+Markets are rallying on falling volatility, but inflation remains sticky and growth is stalling—a combination that leaves the door open for a sharp reversal if the next round of data disappoints.
+
+**Key Takeaways:**
+
+- Equities surged across the board—S&P 500 up 1.00%, Nasdaq up 1.23%, Russell 2000 up 1.31%—while the VIX (a measure of expected market volatility over the next 30 days) dropped 11%, signaling reduced fear.
+- Treasury yields jumped sharply—the 2-year yield rose 17 basis points (a basis point is one-hundredth of a percent) and the 10-year rose 13 basis points—suggesting bond investors are pricing in either stronger growth or stickier inflation ahead.
+- Oil spiked 9.3% to $95.35 per barrel in a single session, raising the risk that energy costs will keep inflation elevated even as the economy slows.
+- Core PCE inflation (the Fed's preferred gauge, which strips out volatile food and energy prices) ticked up to 3.10% year-over-year in January, well above the Fed's 2% target, while GDP growth collapsed to just 0.65% annualized in Q4 2025.
+- The combination of rising inflation and falling growth is the early signature of stagflation—a regime that historically punishes both stocks and bonds.
+
+**Dashboard:**
+
+| Data Point | Current Value | Prior Reading | Direction | Signal Implication | Status | Stale |
+|---|---|---|---|---|---|---|
+| S&P 500 | 6,698.77 | 6,632.19 (previous close) | ↑ | Strong upside move; +1.00% | confirmed | — |
+| Nasdaq | 22,377.54 | 22,105.36 (previous close) | ↑ | Strong upside move; +1.23% | confirmed | — |
+| Russell 2000 | 2,512.6 | 2,480.05 (previous close) | ↑ | Strong upside move; +1.31% | confirmed | — |
+| VIX | 24.16 | 27.19 (previous close) | ↓ | Volatility above normal; -11.14% | confirmed | — |
+| Fed Funds Rate | 3.50-3.75% | 3.50-3.75% | → | Implied target range unchanged | derived (from effective rate 3.64%) | — |
+| 10Y Treasury Yield | 4.28% | 4.15% (one week earlier) | ↑ | Higher by +13 bps | confirmed | Stale (as of 2026-03-13) |
+| 2Y Treasury Yield | 3.73% | 3.56% (one week earlier) | ↑ | Higher by +17 bps | confirmed | Stale (as of 2026-03-13) |
+| 10Y-2Y Spread | +0.55% | +0.59% (one week earlier) | ↓ | Yield curve positive, normal slope | derived (10Y minus 2Y) | Stale (as of 2026-03-13) |
+| CPI YoY (Feb 2026) | 2.43% | 2.39% (Jan 2026) | → | Above Fed's 2% target | derived (from monthly index) | — |
+| Core PCE YoY (Jan 2026) | 3.10% | 3.00% (Dec 2025) | ↑ | Fed's preferred gauge rising | confirmed | Stale (as of 2026-02-28) |
+| ISM Manufacturing PMI (Feb 2026) | 51.6 | 52.4 (Jan 2026) | ↓ | Expanding but slowing | confirmed | Stale (as of 2026-02-28) |
+| ISM Services PMI (Feb 2026) | 56.1 | 53.8 (Jan 2026) | ↑ | Expanding and accelerating | confirmed | Stale (as of 2026-02-28) |
+| Unemployment Rate (Feb 2026) | 4.40% | 4.30% (Jan 2026) | ↑ | Stable but softer | confirmed | — |
+| Initial Jobless Claims (2026-03-07) | 213K | 214K (prior week) | ↓ | Near cycle lows | confirmed | — |
+| WTI Crude Oil | $95.35/bbl | $87.25/bbl (previous close) | ↑ | Oil elevated; +9.28% | confirmed | — |
+| Gold Price | $5,002.00/oz | $5,061.70/oz (previous close) | ↓ | Above $5,000; -1.18% | confirmed | — |
+| DXY Dollar Index | 98.796 | 98.77 (previous close) | ↑ | Dollar strengthening; +0.03% | confirmed | Stale (as of 2026-03-10) |
+| US GDP Q4 2025 (annualized) | 0.65% | 4.38% (Q3 2025) | ↓ | Growth weak on quarterly basis | derived (from real GDP series) | — |
+
+---
+
+## Economic Cycle Positioning
+
+The economy is in **Late Cycle** transition, tipping toward **Falling Growth + Rising Inflation (Stagflation)**.
+
+The evidence is unambiguous. GDP growth collapsed from 4.38% annualized in Q3 2025 to just 0.65% in Q4 2025—a deceleration sharp enough to raise recession risk. At the same time, Core PCE inflation accelerated from 3.00% in December to 3.10% in January, and CPI held at 2.43% in February, both well above the Fed's 2% target. WTI crude oil jumped 9.3% in a single session to $95.35 per barrel, adding fuel to inflationary pressures. The ISM Manufacturing PMI fell from 52.4 to 51.6, signaling that factory activity is still expanding but losing momentum. The unemployment rate ticked up from 4.30% to 4.40%, a small but notable softening in labor markets. The yield curve remains positive at +0.55%, which typically signals expansion, but the sharp rise in both short-term (2Y up 17 bps) and long-term (10Y up 13 bps) yields suggests bond investors are pricing in either persistent inflation or a policy mistake by the Fed.
+
+**Stagflation** is the term for an economy where growth slows or stalls while prices keep rising—a toxic combination that leaves the Federal Reserve with no good options. Cutting rates to support growth risks fueling more inflation; holding rates steady risks tipping the economy into recession. This regime historically favors assets that hold value when currencies weaken (commodities, gold) and punishes assets that depend on expanding profit margins (cyclical stocks, long-duration bonds).
+
+**Consistency check:** The Late Cycle / Stagflation diagnosis points toward a defensive tilt, which aligns with the Sector Rotation Scorecard conclusion below that leans mildly defensive.
+
+| Cycle Phase | Favored Sector Categories | Disfavored Sector Categories |
+|---|---|---|
+| Late Cycle / Stagflation | Energy, Utilities, Healthcare, Consumer Staples, Gold/Materials (inflation hedges) | Consumer Discretionary, Financials, Industrials, Technology (long-duration growth) |
+
+---
+
+## Sector Rotation Trigger Scorecard
+
+| Trigger | Current Data | Score | Reasoning |
+|---|---|---|---|
+| **Interest Rates** | Fed Funds 3.50-3.75% (unchanged); 10Y yield 4.28% (+13 bps); 2Y yield 3.73% (+17 bps) | **0** | Fed is on hold with no clear directional signal. Rising yields reflect inflation concerns, not dovish pivot. Neutral. |
+| **Economic Data** | ISM Mfg PMI 51.6 (above 50 but down from 52.4); ISM Services PMI 56.1 (above 50, up from 53.8); GDP 0.65% annualized (collapsed from 4.38%) | **-1** | PMI readings are mixed—manufacturing slowing, services accelerating—but GDP deceleration is severe enough to tip this defensive. |
+| **Earnings Revisions** | Data unavailable | **0** | Scored 0 by default—data unavailable. This score is not analytical. |
+| **Commodity Prices** | WTI Crude $95.35 (+9.3%); Gold $5,002 (-1.2%); Copper data unavailable | **0** | Oil is surging, but in a slowing-growth environment this reflects supply disruption or geopolitical risk (inflationary headwind), not demand strength. Scored neutral rather than cyclical. |
+| **Consumer Spending** | Unemployment 4.40% (up from 4.30%); Jobless Claims 213K (stable); Retail sales data unavailable | **-1** | Labor market is softening (unemployment rising), which typically precedes weaker consumer spending. Defensive lean. |
+
+**Summary:**
+
+| Net Score | — | **-2** | **Mild Defensive Lean** — slight overweight Healthcare, Staples, Utilities |
+
+**Note:** Two triggers (Earnings Revisions, Commodity Prices) were scored 0 due to missing data. If earnings revisions were modestly negative and copper were falling alongside oil's rise being supply-driven, the score could plausibly be -3 (Strong Defensive Lean).
+
+The next 4 to 8 weeks hinge on two catalysts: the March CPI print (due early April) and the Fed's March meeting commentary. If inflation shows signs of rolling over, the scorecard shifts back toward neutral and cyclicals regain favor. If inflation remains sticky and the Fed signals it will tolerate slower growth to bring prices down, defensives extend their lead. For now, position with a slight overweight to Healthcare (inelastic demand, pricing power), Consumer Staples (recession-resistant), and Utilities (bond-proxy with inflation pass-through). Underweight Consumer Discretionary (vulnerable to weakening labor markets) and Financials (net interest margin pressure if the Fed cuts while the curve flattens). Maintain diversification—this is a -2, not a -4.
+
+---
+
+## Macro Themes
+
+### Theme 1: Stagflation Risk Is No Longer Theoretical
+
+**Thesis:** The U.S. economy is exhibiting the early hallmarks of stagflation—growth collapsing while inflation remains elevated—a regime that has not been priced into equity markets since the 1970s. GDP growth fell from 4.38% annualized in Q3 2025 to just 0.65% in Q4 2025, a deceleration severe enough to raise recession risk. At the same time, Core PCE inflation accelerated from 3.00% to 3.10%, and oil spiked 9.3% in a single session to $95.35 per barrel. The Fed is trapped: cutting rates to support growth risks re-igniting inflation, while holding rates steady risks tipping the economy into contraction. This is the worst possible environment for traditional 60/40 portfolios, which rely on bonds rallying when stocks fall—a correlation that breaks down when inflation is the dominant force.
+
+**Human stakes:** For businesses, this means input costs (energy, labor, materials) keep rising even as customer demand weakens, crushing profit margins. For workers, it means wages may rise nominally but fall in real terms as prices outpace paychecks. For retirees holding bonds, it means their fixed income loses purchasing power every month inflation stays elevated.
+
+**Evidence:** GDP growth 0.65% annualized (Q4 2025), down from 4.38% (Q3 2025). Core PCE inflation 3.10% (January 2026), up from 3.00% (December 2025). WTI crude oil $95.35/bbl, up 9.3% in one session (March 16, 2026). ISM Manufacturing PMI 51.6 (February 2026), down from 52.4 (January 2026), signaling slowing factory activity.
+
+**Portfolio Implication:** Overweight Energy (benefits from rising oil prices), Utilities (inflation pass-through and bond-proxy characteristics), and gold (classic inflation hedge). Underweight long-duration growth stocks (Technology, Consumer Discretionary) whose valuations depend on low discount rates and expanding multiples.
+
+---
+
+### Theme 2: The Bond Market Is Pricing In a Policy Mistake
+
+**Thesis:** Treasury yields surged across the curve—2-year yields up 17 basis points, 10-year yields up 13 basis points—in a single week, even as equity markets rallied. This is unusual. Typically, rising yields accompany optimism about growth; falling yields accompany fear of recession. The current move suggests bond investors believe the Fed will hold rates too high for too long, allowing inflation to persist while growth stalls. The yield curve remains positive at +0.55%, which historically signals expansion, but the speed and magnitude of the recent move suggest bond vigilantes are losing confidence in the Fed's ability to engineer a soft landing.
+
+**Human stakes:** For homebuyers, mortgage rates—which track the 10-year Treasury—are moving higher, making housing less affordable just as the labor market softens. For corporations with debt maturing in the next 12-24 months, refinancing costs are rising, which will either force spending cuts or weigh on earnings.
+
+**Evidence:** 10-year Treasury yield 4.28%, up from 4.15% one week earlier (+13 bps). 2-year Treasury yield 3.73%, up from 3.56% one week earlier (+17 bps). Fed Funds rate unchanged at 3.50-3.75% (March 2026). Core PCE inflation 3.10% (January 2026), well above the Fed's 2% target.
+
+**Portfolio Implication:** Avoid long-duration bonds (20+ year Treasuries, investment-grade corporates) which are most sensitive to rising yields. Favor floating-rate debt and short-duration credit. In equities, favor sectors with pricing power (Healthcare, Staples) that can pass inflation through to customers, and avoid sectors with high debt loads and thin margins (Commercial Real Estate, leveraged Industrials).
+
+---
+
+### Theme 3: Energy Is the Swing Factor for Inflation and Sentiment
+
+**Thesis:** Oil's 9.3% single-session spike to $95.35 per barrel is the most important price move in the macro scan. If sustained, it will keep headline inflation elevated, force the Fed to stay restrictive longer, and weigh on consumer spending (gasoline is the most visible price in the economy). The move appears driven by supply concerns—likely geopolitical risk or OPEC production cuts—rather than surging demand, which makes it an inflationary headwind rather than a growth signal. The risk is that oil continues climbing toward $100-$110, at which point it begins to act as a tax on consumption and tips the economy into recession.
+
+**Human stakes:** For the average household, a $10 increase in oil prices translates to roughly $0.30 more per gallon at the pump. For a family driving 15,000 miles per year in a vehicle that gets 25 miles per gallon, that's an extra $180 annually—a meaningful hit to discretionary spending. For airlines, trucking companies, and manufacturers with energy-intensive operations, rising oil prices compress margins immediately.
+
+**Evidence:** WTI crude oil $95.35/bbl (March 16, 2026), up 9.3% from $87.25/bbl the prior session. Core PCE inflation 3.10% (January 2026), already above target before the oil spike. CPI 2.43% (February 2026), likely to rise in March if oil stays elevated.
+
+**Portfolio Implication:** Overweight Energy equities (integrated oil majors, refiners) which benefit directly from higher prices. Underweight airlines, transportation, and consumer discretionary names with thin margins and high energy exposure. Monitor oil closely—if it breaks above $100, the defensive rotation accelerates.
+
+---
+
+## Data Sources and Research Log
+
+**Macro Scan Generation Timestamp:** 2026-03-16T15:23:47+00:00
+
+**Data Providers Used:**
+- Financial Modeling Prep (primary): equity indices, Treasury yields, economic indicators, commodities
+- Yahoo Finance (secondary): WTI crude oil, DXY Dollar Index
+- Trading Economics (tertiary): Core PCE, ISM Manufacturing PMI, ISM Services PMI
+
+**Derived Data Points:**
+- **Fed Funds Rate (3.50-3.75%):** Target band inferred from effective federal funds rate of 3.64% because FMP free tier exposes the effective series, not the target range.
+- **10Y-2Y Spread (+0.55%):** Calculated as 10-year Treasury yield (4.28%) minus 2-year Treasury yield (3.73%).
+- **CPI YoY (2.43%):** Year-over-year change derived from monthly CPI index levels because FMP free tier returns the index, not the precomputed YoY rate.
+- **US GDP Q4 2025 (0.65% annualized):** Quarterly annualized growth derived from the latest two real GDP observations in the FMP economic indicators series.
+
+**Stale Data Points:**
+- **10Y Treasury Yield, 2Y Treasury Yield, 10Y-2Y Spread:** Last available reading as of 2026-03-13 (3 days old).
+- **Core PCE YoY:** Last available reading as of 2026-02-28 (16 days old).
+- **ISM Manufacturing PMI, ISM Services PMI:** Last available reading as of 2026-02-28 (16 days old).
+- **DXY Dollar Index:** Last available reading as of 2026-03-10 (6 days old).
+
+**Data Points Unavailable:**
+- **Earnings Revisions:** No data source available in current provider set. Trigger scored 0 by default in Sector Rotation Scorecard.
+- **Copper Prices:** Not retrieved in this scan. Commodity trigger scored based on oil and gold only.
+- **Retail Sales:** Not retrieved in this scan. Consumer Spending trigger scored based on unemployment and jobless claims only.
+
+**Web Search Usage:**
+- No web search was performed for this report. All data sourced from the macro scan JSON file dated 2026-03-16T15:23:47+00:00.

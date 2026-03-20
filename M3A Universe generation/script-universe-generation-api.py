@@ -27,8 +27,8 @@ except ImportError:
 
 BASE_DIR   = Path(__file__).resolve().parent
 ENV_PATH   = BASE_DIR.parent / ".env"
-INPUT_PATH = BASE_DIR / "universe-generation.json"
-OUTPUT_PATH = BASE_DIR / "universe-generation-api.json"
+INPUT_PATH = BASE_DIR / "output-universe-generation.json"
+OUTPUT_PATH = BASE_DIR / "output-universe-generation-api.json"
 
 CACHE_TTL_DAYS     = 0   # 0 = always fetch fresh data on every run
 RATE_LIMIT_SECONDS = 0.3   # yfinance / Yahoo rate limit buffer

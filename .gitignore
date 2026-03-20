@@ -6,12 +6,12 @@ __pycache__/
 
 # Generated data outputs
 data/state/*.json
-M1 macro scan/research-macro-scan.json
-M2 Sector ranking/sector-ranking-report.md
-M2 Sector ranking/sector-ranking-last-response*
-M3A Universe generation/universe-generation.json
-M3A Universe generation/universe-generation-api.json
-M3A Universe generation/universe-generation-last-response*
-M3B stock screening/stock-screener.txt
-M5 Portfolio construction/portfolio-construction-output.md
+M1 macro scan/output-research-macro-scan.json
+M2 Sector ranking/output-sector-ranking-report.md
+M2 Sector ranking/output-sector-ranking-last-response*
+M3A Universe generation/output-universe-generation.json
+M3A Universe generation/output-universe-generation-api.json
+M3A Universe generation/output-universe-generation-last-response*
+M3B stock screening/output-stock-screener.txt
+M5 Portfolio construction/output-portfolio-construction.md
 investment-strategy-report-*.docx

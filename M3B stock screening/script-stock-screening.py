@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the M5 portfolio construction prompt through the Anthropic Messages API."""
+"""Run the M3B stock screening prompt through the Anthropic Messages API."""
 
 from __future__ import annotations
 
@@ -16,16 +16,28 @@ import anthropic
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_PATH = BASE_DIR / ".env"
-DEFAULT_PROMPT_PATH = Path(__file__).with_name("portfolio-construction.md")
-DEFAULT_M3B_PATH = BASE_DIR / "M3B stock screening" / "stock-screener.txt"
-DEFAULT_MACRO_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
-DEFAULT_API_DATA_PATH = BASE_DIR / "M3A Universe generation" / "universe-generation-api.json"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_name("portfolio-construction-output.txt")
+DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt-stock-screening.md"
+DEFAULT_API_INPUT_PATH = BASE_DIR / "M3A Universe generation" / "output-universe-generation-api.json"
+DEFAULT_OUTPUT_PATH = Path(__file__).parent / "output-stock-screener.txt"
 
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_MODEL_LABEL = "Claude Sonnet 4.6"
 
-MAX_OUTPUT_TOKENS = 16000
+# Fields required by the 5 scoring lenses — everything else is stripped before sending
+SCREENING_FIELDS = {
+    "ticker", "company_name", "sector", "sector_rank", "sub_industry",
+    "industry_gics", "why_included",
+    # Lens 2 — macro alignment
+    "beta", "dividend_yield", "revenue_growth_yoy", "gross_margin_pct",
+    "operating_margin_pct", "debt_to_ebitda", "fcf_yield",
+    # Lens 3 — multi-factor quant
+    "pe_forward", "pe_trailing", "momentum_score",
+    "return_1m_pct", "return_3m_pct", "return_12m_pct",
+    "roe", "debt_to_equity",
+    # Lens 4 — quality growth
+    "free_cash_flow_ttm",
+}
+MAX_OUTPUT_TOKENS = 32000
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_PAUSE_TURNS = 4
 DEFAULT_MAX_RETRIES = 5
@@ -34,32 +46,38 @@ DEFAULT_RETRY_MAX_DELAY = 60.0
 
 
 class RunnerError(RuntimeError):
-    """Base error for portfolio runner failures."""
+    """Base error for stock screening runner failures."""
 
 
 def load_env_file(path: Path) -> None:
     if not path.exists():
         return
+
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
+
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip()
         if not key:
             continue
+
         if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
             value = value[1:-1]
+
         os.environ.setdefault(key, value)
 
 
 def resolve_api_key(explicit_api_key: str | None) -> str:
     if explicit_api_key:
         return explicit_api_key
+
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if api_key:
         return api_key
+
     raise RunnerError(
         "Missing ANTHROPIC_API_KEY. Set it in .env or export it in the shell."
     )
@@ -71,34 +89,41 @@ def read_required_text(path: Path, label: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def read_optional_text(path: Path) -> str | None:
-    if not path.exists():
-        return None
-    return path.read_text(encoding="utf-8")
+def project_for_screening(raw: str) -> str:
+    """Strip the API JSON to only the fields used by the 5 scoring lenses."""
+    data = json.loads(raw)
+    projected = {
+        "rotation_score": data.get("rotation_score"),
+        "cycle_phase":    data.get("cycle_phase"),
+        "stocks": [
+            {k: v for k, v in stock.items() if k in SCREENING_FIELDS}
+            for stock in data.get("stocks", [])
+        ],
+    }
+    original_chars = len(raw)
+    projected_chars = len(json.dumps(projected))
+    print(
+        f"  [projection] {len(projected['stocks'])} stocks — "
+        f"{original_chars:,} → {projected_chars:,} chars "
+        f"({100 - projected_chars * 100 // original_chars}% reduction)",
+        flush=True,
+    )
+    return json.dumps(projected, indent=2)
 
 
-def build_user_message(
-    *,
-    m3b_text: str,
-    macro_text: str,
-    api_data_text: str | None,
-    portfolio_config: str,
-) -> str:
-    parts: list[str] = []
-
-    parts.append("## M3B STOCK SCREENING OUTPUT\n\n" + m3b_text.strip())
-
-    parts.append("## M1 MACRO CONTEXT\n\n```json\n" + macro_text.strip() + "\n```")
-
-    if api_data_text is not None:
-        parts.append(
-            "## STOCK FUNDAMENTALS (yfinance JSON)\n\n"
-            "```json\n" + api_data_text.strip() + "\n```"
-        )
-
-    parts.append("## PORTFOLIO CONFIGURATION\n\n" + portfolio_config.strip())
-
-    return "\n\n---\n\n".join(parts)
+def build_user_message(api_input_text: str) -> str:
+    projected = project_for_screening(api_input_text)
+    return (
+        "Use the data below as the complete working context.\n\n"
+        "```json\n"
+        f"{projected}\n"
+        "```\n\n"
+        "Score every stock in the `stocks` array using all five lenses "
+        "and produce the full output as specified in the prompt. "
+        "Write plain text only — no markdown formatting. "
+        "Do NOT output reasoning steps or intermediate calculations — "
+        "output ONLY the final report starting with PRE-OUTPUT CHECKS."
+    )
 
 
 def stream_with_retry(
@@ -113,6 +138,7 @@ def stream_with_retry(
     base_delay: float,
     max_delay: float,
 ) -> anthropic.types.Message:
+    """Stream a message request with exponential backoff retry on transient errors."""
     kwargs: dict[str, Any] = {
         "model": model,
         "system": system_prompt,
@@ -145,7 +171,7 @@ def stream_with_retry(
             last_exc = exc
             delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
 
-        print(f"\n[Retry {attempt + 1}/{max_retries}] Waiting {delay:.1f}s...", flush=True)
+        print(f"\n[Retry {attempt + 1}/{max_retries}] Waiting {delay:.1f}s before retrying...", flush=True)
         time.sleep(delay)
 
     raise RunnerError(
@@ -166,6 +192,7 @@ def run_message_loop(
     base_delay: float,
     max_delay: float,
 ) -> anthropic.types.Message:
+    """Stream the agentic loop, resuming on pause_turn up to max_pause_turns times."""
     messages: list[dict[str, Any]] = [{"role": "user", "content": user_message}]
 
     for turn in range(max_pause_turns + 1):
@@ -209,48 +236,22 @@ def extract_text_response(response: anthropic.types.Message) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the M5 portfolio construction prompt with Anthropic Claude."
+        description="Run the M3B stock screening prompt with Anthropic Claude."
     )
     parser.add_argument(
         "--prompt-file",
         default=str(DEFAULT_PROMPT_PATH),
-        help="Path to the portfolio-construction.md prompt file.",
+        help="Path to the stock-screening prompt markdown file.",
     )
     parser.add_argument(
-        "--m3b-file",
-        default=str(DEFAULT_M3B_PATH),
-        help="Path to the M3B stock-screener.txt output.",
-    )
-    parser.add_argument(
-        "--macro-file",
-        default=str(DEFAULT_MACRO_PATH),
-        help="Path to the M1 research-macro-scan.json file.",
-    )
-    parser.add_argument(
-        "--api-data-file",
-        default=str(DEFAULT_API_DATA_PATH),
-        help="Path to the universe-generation-api.json file (optional, omit to skip).",
-    )
-    parser.add_argument(
-        "--no-api-data",
-        action="store_true",
-        help="Skip attaching the yfinance JSON even if the file exists.",
-    )
-    parser.add_argument(
-        "--portfolio-config",
-        default=(
-            "Capital: $100,000\n"
-            "Target positions: 8-12 stocks\n"
-            "Risk tolerance: moderate\n"
-            "Investment horizon: 18-36 months\n"
-            "Goal: double the portfolio within the investment horizon"
-        ),
-        help="Free-text portfolio configuration passed to the model.",
+        "--api-input-file",
+        default=str(DEFAULT_API_INPUT_PATH),
+        help="Path to the universe-generation-api.json file.",
     )
     parser.add_argument(
         "--output",
         default=str(DEFAULT_OUTPUT_PATH),
-        help="Where to write the portfolio construction output.",
+        help="Where to write the screening report text output.",
     )
     parser.add_argument(
         "--api-key",
@@ -272,7 +273,7 @@ def parse_args() -> argparse.Namespace:
         "--max-retries",
         type=int,
         default=DEFAULT_MAX_RETRIES,
-        help="Maximum retry attempts on transient errors.",
+        help="Maximum retry attempts on transient network/server errors.",
     )
     parser.add_argument(
         "--dry-run",
@@ -287,28 +288,12 @@ def main() -> None:
     args = parse_args()
 
     prompt_path = Path(args.prompt_file)
-    m3b_path = Path(args.m3b_file)
-    macro_path = Path(args.macro_file)
-    api_data_path = Path(args.api_data_file)
+    api_input_path = Path(args.api_input_file)
     output_path = Path(args.output)
 
     system_prompt = read_required_text(prompt_path, "prompt file")
-    m3b_text = read_required_text(m3b_path, "M3B screener output")
-    macro_text = read_required_text(macro_path, "M1 macro scan JSON")
-    api_data_text = None if args.no_api_data else read_optional_text(api_data_path)
-
-    if api_data_text is None and not args.no_api_data:
-        print(
-            f"  [info] API data file not found ({api_data_path.name}) — proceeding without it.",
-            flush=True,
-        )
-
-    user_message = build_user_message(
-        m3b_text=m3b_text,
-        macro_text=macro_text,
-        api_data_text=api_data_text,
-        portfolio_config=args.portfolio_config,
-    )
+    api_input_text = read_required_text(api_input_path, "universe-generation-api.json")
+    user_message = build_user_message(api_input_text)
 
     if args.dry_run:
         print(
@@ -317,13 +302,10 @@ def main() -> None:
                     "model": ANTHROPIC_MODEL,
                     "model_label": ANTHROPIC_MODEL_LABEL,
                     "prompt_file": str(prompt_path),
-                    "m3b_file": str(m3b_path),
-                    "macro_file": str(macro_path),
-                    "api_data_file": str(api_data_path) if not args.no_api_data else None,
+                    "api_input_file": str(api_input_path),
                     "output_file": str(output_path),
                     "max_output_tokens": MAX_OUTPUT_TOKENS,
                     "temperature": args.temperature,
-                    "user_message_chars": len(user_message),
                 },
                 indent=2,
             )
@@ -333,7 +315,7 @@ def main() -> None:
     api_key = resolve_api_key(args.api_key)
     client = anthropic.Anthropic(api_key=api_key)
 
-    print(f"[portfolio-construction] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
+    print(f"[stock-screening] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
     print("  Streaming response:\n", flush=True)
 
     response = run_message_loop(

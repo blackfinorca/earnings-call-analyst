@@ -28,7 +28,7 @@ PHASE_DIR = BASE_DIR / "M1 macro scan"
 DATA_DIR = BASE_DIR / "data"
 ENV_PATH = BASE_DIR / ".env"
 
-DEFAULT_OUTPUT_PATH = PHASE_DIR / "research-macro-scan.json"
+DEFAULT_OUTPUT_PATH = PHASE_DIR / "output-research-macro-scan.json"
 CACHE_PATH = DATA_DIR / "state" / "macro-cache.json"
 
 BLS_BASE_URL  = "https://api.bls.gov/publicAPI/v1/timeseries/data"

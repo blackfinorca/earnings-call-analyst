@@ -1,0 +1,167 @@
+# Sector Ranking
+
+Input File: M1 macro scan/research-macro-scan.json  
+Generated At: 2026-03-17T15:30:00+00:00
+
+## Market Snapshot
+
+### Headline
+
+Equities rally broadly while volatility eases, but oil surges on Middle East conflict and inflation remains stubbornly above target.
+
+### Key Takeaways
+
+- Oil jumped 9% to $95/barrel on Iran conflict escalation, threatening to push inflation higher through year-end
+- Earnings growth remains strong at 14% for 2026, led by Industrials and Technology, broadening beyond mega-cap names
+- Fed holds rates at 3.50-3.75% amid conflicting signals: labor market stable but Core PCE at 3.1% versus 2% target
+
+### Dashboard
+
+| Data Point | Current Value | Prior Reading | Direction | Signal Implication | Status | Stale |
+|---|---|---|---|---|---|---|
+| S&P 500 | 6,698.77 | 6,632.19 (previous close) | ↑ | Equities gained 1.00% as risk appetite returned | ok | No |
+| Nasdaq | 22,377.54 | 22,105.36 (previous close) | ↑ | Tech-heavy index rallied 1.23% on earnings optimism | ok | No |
+| Russell 2000 | 2,512.6 | 2,480.05 (previous close) | ↑ | Small caps outperformed with a 1.31% gain | ok | No |
+| VIX | 24.16 | 27.19 (previous close) | ↓ | Fear gauge dropped 11% but remains elevated above 20 | ok | No |
+| Fed Funds Rate | 3.50-3.75% | 3.50-3.75% | → | Policy rate unchanged; Fed on hold amid mixed data | derived | No |
+| 10Y Treasury Yield | 4.28% | 4.15% (one week earlier) | ↑ | Long-end yields rose 13 bps on inflation concerns | ok | No |
+| 2Y Treasury Yield | 3.73% | 3.56% (one week earlier) | ↑ | Front-end yields climbed 17 bps as cuts priced out | ok | No |
+| 10Y-2Y Spread | +0.55% | +0.59% (one week earlier) | ↓ | Curve remains positive but flattened slightly | derived | No |
+| CPI YoY (Feb 2026) | 2.43% | 2.39% (Jan 2026) | → | Headline inflation stuck above Fed's 2% target | derived | No |
+| Core PCE YoY (Jan 2026) | 3.10% | 3.00% (Dec 2025) | ↑ | Fed's preferred gauge accelerated to 3.1% | ok | No |
+| ISM Manufacturing PMI (Feb 2026) | 51.6 | 52.4 (Jan 2026) | ↓ | Manufacturing still expanding but momentum slowed | ok | No |
+| ISM Services PMI (Feb 2026) | 56.1 | 53.8 (Jan 2026) | ↑ | Services activity reaccelerated above 55 threshold | ok | No |
+| Unemployment Rate (Feb 2026) | 4.40% | 4.30% (Jan 2026) | ↑ | Labor market softened modestly but remains healthy | ok | No |
+| Initial Jobless Claims (2026-03-07) | 213K | 214K (prior week) | ↓ | Claims near cycle lows signal limited layoff pressure | ok | No |
+| WTI Crude Oil | $95.35/bbl | $87.25/bbl (previous close) | ↑ | Oil spiked 9% on Iran conflict; threatens inflation | ok | No |
+| Gold Price | $5,002.00/oz | $5,061.70/oz (previous close) | ↓ | Gold dipped 1% but holds above $5,000 safe-haven level | ok | No |
+| DXY Dollar Index | 98.796 | 98.77 (previous close) | ↑ | Dollar edged higher but move was marginal | ok | Stale (Mar 10) |
+| US GDP Q4 2025 (annualized) | 0.65% | 4.38% (Q3 2025) | ↓ | Growth decelerated sharply to near-stall speed | derived | No |
+
+## Cycle Positioning
+
+### Cycle Phase
+
+Late Cycle
+
+### Growth/Inflation Quadrant
+
+Falling Growth + Rising Inflation
+
+### Verdict
+
+The economy sits in an uncomfortable spot: growth is decelerating sharply while inflation refuses to cooperate. Q4 GDP slowed to just 0.65% annualized from 4.38% the prior quarter—a dramatic downshift that signals fading momentum. Meanwhile, Core PCE inflation accelerated to 3.1% and oil's surge to $95 threatens to push headline inflation higher. This combination—slowing growth paired with sticky inflation—defines stagflationary risk and typically marks the late stage of an economic cycle.
+
+### Reasoning
+
+- GDP collapsed from 4.38% to 0.65% annualized in one quarter, the sharpest deceleration in years and a clear warning sign
+- Core PCE rose from 3.0% to 3.1% year-over-year, moving away from the Fed's 2% target despite prior rate hikes
+- Unemployment ticked up to 4.40% from 4.30%, a modest softening that suggests labor demand is cooling gradually
+- The yield curve remains positive at +55 bps but flattened as front-end rates rose faster than long-end, reflecting Fed policy uncertainty
+
+### Favored Sectors
+
+- Energy
+- Utilities
+- Consumer Staples
+- Healthcare
+
+### Disfavored Sectors
+
+- Consumer Discretionary
+- Real Estate
+- Materials
+- Financials
+
+## Rotation Scorecard
+
+### Trigger: Interest Rates
+
+Current Data:
+- Fed Funds Rate: 3.50-3.75%, unchanged
+- 10Y Treasury Yield: 4.28%, up 13 bps week-over-week
+- 2Y Treasury Yield: 3.73%, up 17 bps week-over-week
+
+Score: -1
+
+Reasoning:
+
+The Fed is on hold and market pricing now reflects zero cuts in 2026, a dramatic shift from earlier expectations of multiple easing moves. Both short- and long-end yields rose as inflation concerns intensified, tightening financial conditions. Higher rates for longer favor defensive sectors with stable cash flows and penalize rate-sensitive cyclicals like housing and discretionary spending.
+
+### Trigger: Economic Data
+
+Current Data:
+- US GDP Q4 2025: 0.65% annualized, down from 4.38%
+- ISM Manufacturing PMI: 51.6, down from 52.4
+- ISM Services PMI: 56.1, up from 53.8
+- Unemployment Rate: 4.40%, up from 4.30%
+
+Score: 0
+
+Reasoning:
+
+The data is genuinely mixed. GDP decelerated sharply and manufacturing momentum slowed, both cyclical headwinds. But services activity reaccelerated to 56.1—a healthy expansion pace—and jobless claims remain near cycle lows at 213K. The labor market is softening but not breaking. This tug-of-war between weak goods activity and resilient services leaves the economic picture neutral, offering no clear directional signal for sector rotation.
+
+### Trigger: Earnings Revisions
+
+Current Data:
+- S&P 500 Q4 2025 earnings growth: 14.2%, beating initial 8.3% estimate
+- 2026 full-year EPS growth forecast: 14-15%
+- Industrials delivered 24% earnings surprise, leading all sectors
+- Information Technology, Communication Services, and Industrials driving upward revisions
+
+Score: +1
+
+Reasoning:
+
+Earnings are the bright spot. The S&P 500 posted its fifth consecutive quarter of double-digit growth, and 2026 forecasts remain robust at 14-15%. Critically, the earnings story is broadening: Industrials surprised by 24% on aerospace, defense, and AI infrastructure demand, while the non-Magnificent-7 cohort is now expected to grow 12.5% versus near-zero 18 months ago. This breadth supports a mild cyclical tilt, particularly toward sectors benefiting from AI capex and infrastructure spending.
+
+### Trigger: Commodity Prices
+
+Current Data:
+- WTI Crude Oil: $95.35/bbl, up 9.28% day-over-day
+- Gold Price: $5,002/oz, down 1.18% but holding above $5,000
+- DXY Dollar Index: 98.796, up marginally
+
+Score: -1
+
+Reasoning:
+
+Oil's 9% spike on Iran conflict escalation is the dominant commodity story and it tilts defensive. If sustained, $95 oil adds 50 basis points to headline inflation by mid-year and threatens consumer spending power. Gold's resilience above $5,000 signals safe-haven demand remains elevated. The dollar's stability offers no relief. Rising energy costs historically favor Energy and penalize Consumer Discretionary, Materials, and Industrials exposed to input cost inflation—a defensive signal.
+
+### Trigger: Consumer Spending
+
+Current Data:
+- CPI YoY: 2.43%, unchanged month-over-month
+- Core PCE YoY: 3.10%, up from 3.00%
+- Gasoline prices: $3.50/gallon, up 19% in two weeks
+- Unemployment Rate: 4.40%, up from 4.30%
+
+Score: -1
+
+Reasoning:
+
+The consumer faces a squeeze. Inflation remains above target, gasoline prices jumped 19% in two weeks, and unemployment is rising modestly. Real wage growth is under pressure. Retailers like Dollar General warned of financial stress among low-income shoppers, highlighting a growing rift in discretionary spending. This environment favors defensive Consumer Staples and disfavors discretionary categories like apparel, restaurants, and leisure.
+
+### Net Rotation Score
+
+-2
+
+### Interpretation
+
+MILD DEFENSIVE LEAN
+
+### Portfolio Positioning (4-8 Weeks)
+
+The scorecard points to a mild defensive tilt. Growth is slowing, inflation is sticky, rates are higher for longer, and oil's surge threatens consumer wallets. But earnings remain strong and broadening, preventing a full retreat into defensives. The right posture is selective: overweight Energy (direct oil beneficiary), Utilities and Staples (bond proxies with pricing power), and Healthcare (defensive growth). Underweight Consumer Discretionary (spending squeeze), Real Estate (rate sensitivity), and Materials (input cost pressure). Within cyclicals, favor Industrials with AI infrastructure exposure over rate-sensitive Financials.
+
+## Macro Themes
+
+### Theme 1: Oil Shock Revives Stagflation Risk
+
+Thesis:
+
+WTI crude surged to $95 per barrel on Iran conflict escalation, the highest level since 2024. If sustained, elevated oil prices add 50 basis points to headline inflation by mid-year and threaten to push Core PCE above 3.5% by year-end. This comes as GDP growth decelerated to just 0.65% annualized in Q4 2025, creating the classic stagflation setup: rising inflation paired with slowing growth. The Fed is trapped—unable to cut rates to support growth without risking an inflation re-acceleration.
+
+Evidence:
+- Oil jumped 9% in one day to $95/

@@ -15,12 +15,12 @@ from urllib.request import Request, urlopen
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_PATH = BASE_DIR / ".env"
-DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
-DEFAULT_INPUT_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
+DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt-sector-ranking.md"
+DEFAULT_INPUT_PATH = BASE_DIR / "M1 macro scan" / "output-research-macro-scan.json"
 DEFAULT_WRITING_PATH = BASE_DIR / "writing-phylosophy.jsx"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_name("sector-ranking-report.md")
-DEFAULT_DEBUG_RESPONSE_PATH = Path(__file__).with_name("sector-ranking-last-response.json")
-DEFAULT_DEBUG_TEXT_PATH = Path(__file__).with_name("sector-ranking-last-response.txt")
+DEFAULT_OUTPUT_PATH = Path(__file__).parent / "output-sector-ranking-report.md"
+DEFAULT_DEBUG_RESPONSE_PATH = Path(__file__).parent / "output-sector-ranking-last-response.json"
+DEFAULT_DEBUG_TEXT_PATH = Path(__file__).parent / "output-sector-ranking-last-response.txt"
 
 ANTHROPIC_API_ENV_VAR = "ANTHROPIC_API_KEY"
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"

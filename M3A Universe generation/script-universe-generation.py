@@ -17,11 +17,11 @@ import anthropic
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_PATH = BASE_DIR / ".env"
-DEFAULT_PROMPT_PATH = Path(__file__).with_suffix(".md")
-DEFAULT_SECTOR_INPUT_PATH = BASE_DIR / "M2 Sector ranking" / "sector-ranking-report.md"
-DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "research-macro-scan.json"
-DEFAULT_OUTPUT_PATH = Path(__file__).with_suffix(".json")
-DEFAULT_DEBUG_TEXT_PATH = Path(__file__).with_name("universe-generation-last-response.txt")
+DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt-universe-generation.md"
+DEFAULT_SECTOR_INPUT_PATH = BASE_DIR / "M2 Sector ranking" / "output-sector-ranking-report.md"
+DEFAULT_MACRO_INPUT_PATH = BASE_DIR / "M1 macro scan" / "output-research-macro-scan.json"
+DEFAULT_OUTPUT_PATH = Path(__file__).parent / "output-universe-generation.json"
+DEFAULT_DEBUG_TEXT_PATH = Path(__file__).parent / "output-universe-generation-last-response.txt"
 
 ANTHROPIC_API_ENV_VAR = "ANTHROPIC_API_KEY"
 ANTHROPIC_MODEL = "claude-sonnet-4-6"

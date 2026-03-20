@@ -78,8 +78,8 @@ STAGES: list[Stage] = [
             "Fetches live macro indicators (GDP, inflation, rates, PMI, oil)\n"
             "    via FMP & Yahoo Finance APIs and writes a structured JSON snapshot."
         ),
-        script="M1 macro scan/research-functions.py",
-        output="M1 macro scan/research-macro-scan.json",
+        script="M1 macro scan/script-research-functions.py",
+        output="M1 macro scan/output-research-macro-scan.json",
         supports_dry_run=False,
     ),
     Stage(
@@ -89,8 +89,8 @@ STAGES: list[Stage] = [
             "Runs Claude Sonnet with live web search to rank sectors by macro\n"
             "    cycle alignment and produces a weighted sector ranking report."
         ),
-        script="M2 Sector ranking/sector-ranking.py",
-        output="M2 Sector ranking/sector-ranking-report.md",
+        script="M2 Sector ranking/script-sector-ranking.py",
+        output="M2 Sector ranking/output-sector-ranking-report.md",
     ),
     Stage(
         id="m3a-universe",
@@ -99,8 +99,8 @@ STAGES: list[Stage] = [
             "Claude Sonnet searches the web per-sector and selects 40-50\n"
             "    candidate stocks aligned with the current macro theme."
         ),
-        script="M3A Universe generation/universe-generation.py",
-        output="M3A Universe generation/universe-generation.json",
+        script="M3A Universe generation/script-universe-generation.py",
+        output="M3A Universe generation/output-universe-generation.json",
     ),
     Stage(
         id="m3a-api",
@@ -109,8 +109,8 @@ STAGES: list[Stage] = [
             "Fetches 12-month price history and fundamentals for every\n"
             "    ticker via yfinance. Always fetches fresh data on each run."
         ),
-        script="M3A Universe generation/universe-generation-api.py",
-        output="M3A Universe generation/universe-generation-api.json",
+        script="M3A Universe generation/script-universe-generation-api.py",
+        output="M3A Universe generation/output-universe-generation-api.json",
         supports_dry_run=False,
     ),
     Stage(
@@ -120,8 +120,8 @@ STAGES: list[Stage] = [
             "Claude Sonnet scores every stock across 5 lenses (rotation,\n"
             "    macro, factor, quality, diversification) and ranks them."
         ),
-        script="M3B stock screening/stock-screening.py",
-        output="M3B stock screening/stock-screener.txt",
+        script="M3B stock screening/script-stock-screening.py",
+        output="M3B stock screening/output-stock-screener.txt",
     ),
     Stage(
         id="m5",
@@ -130,8 +130,8 @@ STAGES: list[Stage] = [
             "Claude Sonnet builds a concentrated equity portfolio from the\n"
             "    scored universe, applying a 16-category tiered scoring model."
         ),
-        script="M5 Portfolio construction/portfolio-construction.py",
-        output="M5 Portfolio construction/portfolio-construction-output.md",
+        script="M5 Portfolio construction/script-portfolio-construction.py",
+        output="M5 Portfolio construction/output-portfolio-construction.md",
     ),
     Stage(
         id="doc",

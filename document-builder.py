@@ -44,11 +44,11 @@ BASE_DIR = Path(__file__).resolve().parent
 # Input paths
 # ---------------------------------------------------------------------------
 
-M1_PATH  = BASE_DIR / "M1 macro scan"            / "research-macro-scan.json"
-M2_PATH  = BASE_DIR / "M2 Sector ranking"         / "sector-ranking-report.md"
-M3U_PATH = BASE_DIR / "M3A Universe generation"   / "universe-generation.json"
-M3B_PATH = BASE_DIR / "M3B stock screening"       / "stock-screener.txt"
-M5_PATH  = BASE_DIR / "M5 Portfolio construction" / "portfolio-construction-output.md"
+M1_PATH  = BASE_DIR / "M1 macro scan"            / "output-research-macro-scan.json"
+M2_PATH  = BASE_DIR / "M2 Sector ranking"         / "output-sector-ranking-report.md"
+M3U_PATH = BASE_DIR / "M3A Universe generation"   / "output-universe-generation.json"
+M3B_PATH = BASE_DIR / "M3B stock screening"       / "output-stock-screener.txt"
+M5_PATH  = BASE_DIR / "M5 Portfolio construction" / "output-portfolio-construction.md"
 
 # ---------------------------------------------------------------------------
 # Brand palette

@@ -1,0 +1,250 @@
+{
+  "function": "research-macro-scan",
+  "generated_at": "2026-03-20T13:10:34.066150+00:00",
+  "providers": [
+    "Yahoo Finance / yfinance",
+    "BLS (Bureau of Labor Statistics)",
+    "Claude Sonnet / web search"
+  ],
+  "rows": [
+    {
+      "data_point": "S&P 500",
+      "current_value": "6,606.49",
+      "prior_reading": "6,624.70",
+      "direction": "down",
+      "signal_implication": "Selling pressure (-0.27%); risk-off conditions.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^GSPC",
+        "note": "2026-03-19T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "Nasdaq",
+      "current_value": "22,090.69",
+      "prior_reading": "22,152.42",
+      "direction": "down",
+      "signal_implication": "Selling pressure (-0.28%); risk-off conditions.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^IXIC",
+        "note": "2026-03-19T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "Russell 2000",
+      "current_value": "2,494.71",
+      "prior_reading": "2,478.64",
+      "direction": "up",
+      "signal_implication": "Positive momentum (+0.65%); risk appetite supported.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^RUT",
+        "note": "2026-03-19T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "VIX",
+      "current_value": "24.67",
+      "prior_reading": "24.06",
+      "direction": "up",
+      "signal_implication": "VIX 24.7 \u2014 elevated uncertainty; hedging demand rising.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^VIX",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "Fed Funds Rate",
+      "current_value": "3.61%",
+      "prior_reading": "3.61%",
+      "direction": "flat",
+      "signal_implication": "Fed Funds ~3.61% \u2014 moderately restrictive; above neutral.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^IRX",
+        "note": "13-week T-bill proxy"
+      }
+    },
+    {
+      "data_point": "10Y Treasury Yield",
+      "current_value": "4.30%",
+      "prior_reading": "4.28%",
+      "direction": "up",
+      "signal_implication": "10Y yield rising (4.30%); tighter financial conditions, valuation pressure on equities.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "^TNX",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "2Y Treasury Yield",
+      "current_value": "3.80%",
+      "prior_reading": "3.72%",
+      "direction": "up",
+      "signal_implication": "2Y yield rising (3.80%); market pricing more Fed hikes or higher-for-longer.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "2YY=F",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "10Y-2Y Spread",
+      "current_value": "0.50%",
+      "prior_reading": "0.56%",
+      "direction": "down",
+      "signal_implication": "Yield curve normal (+0.50%); growth expectations intact.",
+      "status": "derived",
+      "source": {
+        "provider": "Derived",
+        "symbol": "DGS10 \u2212 DGS2",
+        "note": "Computed from FRED series"
+      }
+    },
+    {
+      "data_point": "CPI YoY",
+      "current_value": "2.9%",
+      "prior_reading": "3.1%",
+      "direction": "down",
+      "signal_implication": "CPI 2.9% YoY \u2014 above target; disinflation progress stalling.",
+      "status": "ok",
+      "source": {
+        "provider": "BLS",
+        "symbol": "CUUR0000SA0",
+        "note": "as of 2026-02"
+      }
+    },
+    {
+      "data_point": "Core PCE YoY",
+      "current_value": "3.1%",
+      "prior_reading": "3.0%",
+      "direction": "up",
+      "signal_implication": "Core PCE 3.1% YoY \u2014 Fed's preferred gauge; above 2.5%, policy stays restrictive.",
+      "status": "ok",
+      "source": {
+        "provider": "Claude Sonnet / web search",
+        "symbol": "Core PCE",
+        "note": "as of 2026-01"
+      }
+    },
+    {
+      "data_point": "ISM Manufacturing PMI",
+      "current_value": "52.4",
+      "prior_reading": "52.6",
+      "direction": "down",
+      "signal_implication": "PMI 52.4 \u2014 manufacturing expanding; industrial demand supported.",
+      "status": "ok",
+      "source": {
+        "provider": "Claude Sonnet / web search",
+        "symbol": "ISM Manufacturing PMI",
+        "note": "as of 2026-02"
+      }
+    },
+    {
+      "data_point": "ISM Services PMI",
+      "current_value": "56.1",
+      "prior_reading": "53.8",
+      "direction": "up",
+      "signal_implication": "Services NMI 56.1 \u2014 services expanding; consumer demand holding.",
+      "status": "ok",
+      "source": {
+        "provider": "Claude Sonnet / web search",
+        "symbol": "ISM Services NMI",
+        "note": "as of 2026-02"
+      }
+    },
+    {
+      "data_point": "Unemployment Rate",
+      "current_value": "4.4%",
+      "prior_reading": "4.3%",
+      "direction": "up",
+      "signal_implication": "Unemployment 4.4% \u2014 near full employment; modest slack emerging.",
+      "status": "ok",
+      "source": {
+        "provider": "BLS",
+        "symbol": "LNS14000000",
+        "note": "as of 2026-02"
+      }
+    },
+    {
+      "data_point": "Initial Jobless Claims",
+      "current_value": "213k",
+      "prior_reading": "214k",
+      "direction": "down",
+      "signal_implication": "Claims 213k \u2014 historically low; labor market resilient.",
+      "status": "ok",
+      "source": {
+        "provider": "Claude Sonnet / web search",
+        "symbol": "Initial Jobless Claims",
+        "note": "as of 2026-03-07"
+      }
+    },
+    {
+      "data_point": "WTI Crude Oil",
+      "current_value": "95.0",
+      "prior_reading": "96.1",
+      "direction": "down",
+      "signal_implication": "WTI $95.0 \u2014 high; inflation pressure, demand squeeze for consumers.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "CL=F",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "Gold Price",
+      "current_value": "4,676",
+      "prior_reading": "4,601",
+      "direction": "up",
+      "signal_implication": "Gold $4,676 rising \u2014 safe-haven demand; inflation or tail-risk hedging active.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "GC=F",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "DXY Dollar Index",
+      "current_value": "99.43",
+      "prior_reading": "99.23",
+      "direction": "up",
+      "signal_implication": "Dollar strengthening (+0.20%); headwind for commodities and EM assets.",
+      "status": "ok",
+      "source": {
+        "provider": "Yahoo Finance / yfinance",
+        "symbol": "DX-Y.NYB",
+        "note": "2026-03-20T00:00:00+00:00"
+      }
+    },
+    {
+      "data_point": "US GDP",
+      "current_value": "0.70%",
+      "prior_reading": "4.40%",
+      "direction": "down",
+      "signal_implication": "Real GDP 0.70% annualized \u2014 stalling growth; stagflation risk elevated.",
+      "status": "ok",
+      "source": {
+        "provider": "Claude Sonnet / web search",
+        "symbol": "Real GDP",
+        "note": "quarterly annualized, as of 2025-Q4"
+      }
+    }
+  ],
+  "limitations": [],
+  "proxy_rows": [],
+  "derived_rows": [
+    "10Y-2Y Spread"
+  ]
+}
