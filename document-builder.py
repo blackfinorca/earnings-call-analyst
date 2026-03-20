@@ -944,6 +944,12 @@ def main() -> None:
 
     doc.save(str(output_path))
     size_kb = output_path.stat().st_size / 1024
+
+    # Also write a stable "latest" copy for pipeline stage verification
+    latest_path = BASE_DIR / "investment-strategy-report-latest.docx"
+    import shutil
+    shutil.copy2(str(output_path), str(latest_path))
+
     print(f"\nDone  →  {output_path}  ({size_kb:.1f} KB)", flush=True)
 
 

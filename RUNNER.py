@@ -133,6 +133,17 @@ STAGES: list[Stage] = [
         script="M5 Portfolio construction/portfolio-construction.py",
         output="M5 Portfolio construction/portfolio-construction-output.md",
     ),
+    Stage(
+        id="doc",
+        label="DOC Report Builder",
+        description=(
+            "Assembles a formatted Word (.docx) report from all phase outputs\n"
+            "    (M1–M5) with professional layout and signal-coloured tables."
+        ),
+        script="document-builder.py",
+        output="investment-strategy-report-latest.docx",
+        supports_dry_run=False,
+    ),
 ]
 
 STAGE_IDS = [s.id for s in STAGES]
