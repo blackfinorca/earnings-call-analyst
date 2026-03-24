@@ -3,6 +3,7 @@ __pycache__/
 .env
 .DS_Store
 .venv/
+.worktrees/
 
 # Generated data outputs
 data/state/*.json
