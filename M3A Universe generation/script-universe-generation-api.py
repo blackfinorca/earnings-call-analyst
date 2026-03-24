@@ -30,7 +30,7 @@ ENV_PATH   = BASE_DIR.parent / ".env"
 INPUT_PATH = BASE_DIR / "output-universe-generation.json"
 OUTPUT_PATH = BASE_DIR / "output-universe-generation-api.json"
 
-CACHE_TTL_DAYS     = 0   # 0 = always fetch fresh data on every run
+CACHE_TTL_DAYS     = 7
 RATE_LIMIT_SECONDS = 0.3   # yfinance / Yahoo rate limit buffer
 RETRY_DELAY        = 2.0   # seconds to wait before a single retry
 
@@ -208,9 +208,9 @@ def _history_to_ohlcv(hist) -> tuple[list, list, list, list] | None:
     return close, volume, high, low
 
 
-def fetch_technicals(symbol: str) -> dict | None:
+def fetch_technicals(symbol: str, ticker=None) -> dict | None:
     """Fetch price history and compute technicals. Retries once on empty result."""
-    tk = yf.Ticker(symbol)
+    tk = ticker or yf.Ticker(symbol)
 
     # Primary attempt
     hist = tk.history(period="13mo", auto_adjust=True)
@@ -246,9 +246,9 @@ def _info_is_valid(info: dict) -> bool:
     return any(info.get(f) for f in _REQUIRED_INFO_FIELDS)
 
 
-def fetch_fundamentals(symbol: str) -> dict:
+def fetch_fundamentals(symbol: str, ticker=None) -> dict:
     """Fetch fundamentals from yfinance. Retries once if info is sparse."""
-    tk   = yf.Ticker(symbol)
+    tk   = ticker or yf.Ticker(symbol)
     info = tk.info
 
     if not _info_is_valid(info):
@@ -349,7 +349,7 @@ def fetch_fundamentals(symbol: str) -> dict:
 # Supplemental yfinance data — financial statements + analyst ratings
 # ---------------------------------------------------------------------------
 
-def fetch_statements(symbol: str) -> dict:
+def fetch_statements(symbol: str, ticker=None) -> dict:
     """
     Fetch line items from annual income statement, balance sheet, and cash flow
     that are needed for M5 scoring (ROIC, interest coverage, capital allocation).
@@ -363,7 +363,7 @@ def fetch_statements(symbol: str) -> dict:
         "tax_provision":            None,
         "pretax_income":            None,
     }
-    tk = yf.Ticker(symbol)
+    tk = ticker or yf.Ticker(symbol)
 
     # Income statement — operating income, interest expense, tax rate inputs
     try:
@@ -400,7 +400,7 @@ def fetch_statements(symbol: str) -> dict:
     return result
 
 
-def fetch_recommendations(symbol: str) -> dict:
+def fetch_recommendations(symbol: str, ticker=None) -> dict:
     """
     Fetch analyst buy/hold/sell breakdown from yfinance recommendations_summary.
     Returns a dict with analyst_buy_count, analyst_hold_count, analyst_sell_count.
@@ -411,7 +411,7 @@ def fetch_recommendations(symbol: str) -> dict:
         "analyst_sell_count": None,
     }
     try:
-        tk      = yf.Ticker(symbol)
+        tk      = ticker or yf.Ticker(symbol)
         summary = tk.recommendations_summary
         if summary is None or summary.empty:
             return result
@@ -544,7 +544,7 @@ def validate_filters(fundamentals: dict, technicals: dict) -> dict:
 # Cache — skip tickers fetched within TTL
 # ---------------------------------------------------------------------------
 
-def load_cache(output_path: Path) -> dict[str, dict]:
+def load_cache(output_path: Path, cache_ttl_days: int = CACHE_TTL_DAYS) -> dict[str, dict]:
     """Return ticker → entry for records fetched within CACHE_TTL_DAYS."""
     if not output_path.exists():
         return {}
@@ -554,7 +554,7 @@ def load_cache(output_path: Path) -> dict[str, dict]:
     except (json.JSONDecodeError, OSError):
         return {}
 
-    cutoff     = datetime.now(timezone.utc) - timedelta(days=CACHE_TTL_DAYS)
+    cutoff     = datetime.now(timezone.utc) - timedelta(days=cache_ttl_days)
     cache: dict[str, dict] = {}
     all_entries = existing.get("stocks", []) + existing.get("flagged_stocks", [])
     for entry in all_entries:
@@ -581,6 +581,36 @@ def load_cache(output_path: Path) -> dict[str, dict]:
 # Main fetch loop
 # ---------------------------------------------------------------------------
 
+def fetch_ticker_record(entry: dict, ticker_factory=yf.Ticker) -> dict | None:
+    ticker_str = entry["ticker"]
+    ticker = ticker_factory(ticker_str)
+    technicals = fetch_technicals(ticker_str, ticker=ticker)
+    fundamentals = fetch_fundamentals(ticker_str, ticker=ticker)
+    fundamentals.update(fetch_statements(ticker_str, ticker=ticker))
+    fundamentals.update(fetch_recommendations(ticker_str, ticker=ticker))
+
+    if technicals is None:
+        return None
+
+    derived = compute_derived(fundamentals, technicals)
+    validation = validate_filters(fundamentals, technicals)
+    return {
+        "fetched_at":    datetime.now(timezone.utc).isoformat(),
+        "ticker":        ticker_str,
+        "company_name":  fundamentals.get("company_name"),
+        "sector":        entry.get("sector"),
+        "sector_rank":   entry.get("sector_rank"),
+        "sub_industry":  entry.get("sub_industry"),
+        "why_included":  entry.get("why_included"),
+        "verified_m3a":  entry.get("verified"),
+        "filter_passed": validation["passed"],
+        "filter_flags":  validation["flags"],
+        "technicals":    technicals,
+        "fundamentals":  fundamentals,
+        "derived":       derived,
+    }
+
+
 def fetch_all(tickers: list[dict], cache: dict[str, dict]) -> tuple[list, list]:
     results = []
     failed  = []
@@ -605,37 +635,13 @@ def fetch_all(tickers: list[dict], cache: dict[str, dict]) -> tuple[list, list]:
         print(f"[{i+1}/{len(tickers)}] Fetching {ticker_str}...")
 
         try:
-            technicals   = fetch_technicals(ticker_str)
-            fundamentals = fetch_fundamentals(ticker_str)
-
-            # Merge statement-derived fields and analyst breakdown into fundamentals
-            fundamentals.update(fetch_statements(ticker_str))
-            fundamentals.update(fetch_recommendations(ticker_str))
-
-            if technicals is None:
+            record = fetch_ticker_record(entry)
+            if record is None:
                 print(f"  SKIP: insufficient price history for {ticker_str}")
                 failed.append({"ticker": ticker_str, "reason": "insufficient_price_history"})
                 time.sleep(RATE_LIMIT_SECONDS)
                 continue
-
-            derived    = compute_derived(fundamentals, technicals)
-            validation = validate_filters(fundamentals, technicals)
-
-            results.append({
-                "fetched_at":    datetime.now(timezone.utc).isoformat(),
-                "ticker":        ticker_str,
-                "company_name":  fundamentals.get("company_name"),
-                "sector":        entry.get("sector"),
-                "sector_rank":   entry.get("sector_rank"),
-                "sub_industry":  entry.get("sub_industry"),
-                "why_included":  entry.get("why_included"),
-                "verified_m3a":  entry.get("verified"),
-                "filter_passed": validation["passed"],
-                "filter_flags":  validation["flags"],
-                "technicals":    technicals,
-                "fundamentals":  fundamentals,
-                "derived":       derived,
-            })
+            results.append(record)
 
         except Exception as exc:
             print(f"  ERROR: {ticker_str} — {exc}")

@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import random
@@ -97,6 +99,18 @@ def pct_change(current: float, prior: float | None) -> float | None:
     if prior and prior != 0:
         return (current - prior) / abs(prior) * 100
     return None
+
+
+def run_parallel_tasks(tasks: list[tuple[str, Any]], max_workers: int = 4) -> OrderedDict[str, Any]:
+    results: OrderedDict[str, Any] = OrderedDict()
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            name: executor.submit(task)
+            for name, task in tasks
+        }
+        for name, _task in tasks:
+            results[name] = futures[name].result()
+    return results
 
 
 # ---------------------------------------------------------------------------
@@ -657,18 +671,32 @@ def build_macro_scan_payload(force_refresh: bool = False) -> dict:
     cache = {} if force_refresh else load_cache()
 
     print("  Fetching market data (yfinance)...", flush=True)
-    sp500  = build_index_row("S&P 500",       "^GSPC",     cache)
-    nasdaq = build_index_row("Nasdaq",         "^IXIC",     cache)
-    rut    = build_index_row("Russell 2000",   "^RUT",      cache)
-    vix    = build_vix_row(cache)
-    wti    = build_wti_row(cache)
-    gold   = build_gold_row(cache)
-    dxy    = build_dxy_row(cache)
+    market_rows = run_parallel_tasks([
+        ("sp500", lambda: build_index_row("S&P 500", "^GSPC", cache)),
+        ("nasdaq", lambda: build_index_row("Nasdaq", "^IXIC", cache)),
+        ("rut", lambda: build_index_row("Russell 2000", "^RUT", cache)),
+        ("vix", lambda: build_vix_row(cache)),
+        ("wti", lambda: build_wti_row(cache)),
+        ("gold", lambda: build_gold_row(cache)),
+        ("dxy", lambda: build_dxy_row(cache)),
+    ])
+    sp500 = market_rows["sp500"]
+    nasdaq = market_rows["nasdaq"]
+    rut = market_rows["rut"]
+    vix = market_rows["vix"]
+    wti = market_rows["wti"]
+    gold = market_rows["gold"]
+    dxy = market_rows["dxy"]
 
     print("  Fetching yield / rate data (yfinance + FRED)...", flush=True)
-    fed    = build_fed_funds_row(cache)
-    ten_y  = build_10y_row(cache)
-    two_y  = build_2y_row(cache)
+    rate_rows = run_parallel_tasks([
+        ("fed", lambda: build_fed_funds_row(cache)),
+        ("ten_y", lambda: build_10y_row(cache)),
+        ("two_y", lambda: build_2y_row(cache)),
+    ])
+    fed = rate_rows["fed"]
+    ten_y = rate_rows["ten_y"]
+    two_y = rate_rows["two_y"]
     spread = build_spread_row(ten_y, two_y)
 
     print("  Fetching economic indicators (BLS + Claude Sonnet web search)...", flush=True)

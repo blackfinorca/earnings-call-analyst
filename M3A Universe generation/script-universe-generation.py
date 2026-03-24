@@ -5,9 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import random
-import time
+import sys
 from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
@@ -16,6 +14,17 @@ import anthropic
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+from backend.research_app.anthropic_runner import (  # noqa: E402
+    extract_text_response,
+    load_env_file,
+    read_required_text,
+    resolve_api_key,
+    run_message_loop,
+)
+
 ENV_PATH = BASE_DIR / ".env"
 DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt-universe-generation.md"
 DEFAULT_SECTOR_INPUT_PATH = BASE_DIR / "M2 Sector ranking" / "output-sector-ranking-report.md"
@@ -38,46 +47,6 @@ DEFAULT_RETRY_MAX_DELAY = 60.0
 
 class AnthropicRunnerError(RuntimeError):
     """Base error for universe generation runner failures."""
-
-
-def load_env_file(path: Path) -> None:
-    if not path.exists():
-        return
-
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip()
-        if not key:
-            continue
-
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
-            value = value[1:-1]
-
-        os.environ.setdefault(key, value)
-
-
-def resolve_api_key(explicit_api_key: str | None) -> str:
-    if explicit_api_key:
-        return explicit_api_key
-
-    api_key = os.getenv(ANTHROPIC_API_ENV_VAR)
-    if api_key:
-        return api_key
-
-    raise AnthropicRunnerError(
-        f"Missing {ANTHROPIC_API_ENV_VAR}. Set it in .env or export it in the shell."
-    )
-
-
-def read_required_text(path: Path, label: str) -> str:
-    if not path.exists():
-        raise AnthropicRunnerError(f"Missing {label}: {path}")
-    return path.read_text(encoding="utf-8")
 
 
 def build_user_message(
@@ -114,119 +83,6 @@ def build_tools(
             "max_uses": web_search_max_uses,
         }
     ]
-
-
-def stream_with_retry(
-    *,
-    client: anthropic.Anthropic,
-    model: str,
-    system_prompt: str,
-    messages: list[dict[str, Any]],
-    max_tokens: int,
-    temperature: float,
-    tools: list[dict[str, Any]] | None,
-    max_retries: int,
-    base_delay: float,
-    max_delay: float,
-) -> anthropic.types.Message:
-    """Stream a message request with exponential backoff retry on transient errors."""
-    kwargs: dict[str, Any] = {
-        "model": model,
-        "system": system_prompt,
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-        "messages": messages,
-    }
-    if tools:
-        kwargs["tools"] = tools
-
-    last_exc: Exception | None = None
-    for attempt in range(max_retries):
-        try:
-            with client.messages.stream(**kwargs) as stream:
-                for text_chunk in stream.text_stream:
-                    print(text_chunk, end="", flush=True)
-                return stream.get_final_message()
-        except anthropic.RateLimitError as exc:
-            last_exc = exc
-            retry_after = int(
-                getattr(getattr(exc, "response", None), "headers", {}).get(
-                    "retry-after", base_delay * (2 ** attempt)
-                )
-            )
-            delay = min(retry_after + random.uniform(0, 1), max_delay)
-        except anthropic.APIStatusError as exc:
-            if exc.status_code < 500:
-                raise  # 4xx client errors are not retryable
-            last_exc = exc
-            delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
-        except anthropic.APIConnectionError as exc:
-            last_exc = exc
-            delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
-
-        print(f"\n[Retry {attempt + 1}/{max_retries}] Waiting {delay:.1f}s before retrying...", flush=True)
-        time.sleep(delay)
-
-    raise AnthropicRunnerError(
-        f"Anthropic request failed after {max_retries} retries."
-    ) from last_exc
-
-
-def run_message_loop(
-    *,
-    client: anthropic.Anthropic,
-    model: str,
-    system_prompt: str,
-    user_message: str,
-    max_tokens: int,
-    temperature: float,
-    tools: list[dict[str, Any]] | None,
-    max_pause_turns: int,
-    max_retries: int,
-    base_delay: float,
-    max_delay: float,
-) -> anthropic.types.Message:
-    """Stream the agentic loop, resuming on pause_turn up to max_pause_turns times."""
-    messages: list[dict[str, Any]] = [{"role": "user", "content": user_message}]
-
-    for turn in range(max_pause_turns + 1):
-        if turn > 0:
-            print(f"\n[Turn {turn + 1}] Resuming after pause_turn...", flush=True)
-
-        response = stream_with_retry(
-            client=client,
-            model=model,
-            system_prompt=system_prompt,
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            tools=tools,
-            max_retries=max_retries,
-            base_delay=base_delay,
-            max_delay=max_delay,
-        )
-
-        if response.stop_reason != "pause_turn":
-            return response
-
-        messages = messages + [
-            {
-                "role": "assistant",
-                "content": response.content,
-            }
-        ]
-
-    raise AnthropicRunnerError(
-        "Anthropic response hit repeated pause_turn limits before producing a final answer."
-    )
-
-
-def extract_text_response(response: anthropic.types.Message) -> str:
-    parts: list[str] = []
-    for block in response.content:
-        if block.type == "text" and block.text:
-            parts.append(block.text)
-    return "\n".join(parts).strip()
 
 
 def parse_json_payload(text: str) -> dict[str, Any]:
@@ -353,9 +209,9 @@ def main() -> None:
 
     enable_web_search = not args.disable_web_search
 
-    system_prompt = read_required_text(prompt_path, "prompt file")
-    sector_report_text = read_required_text(sector_input_path, "sector ranking report file")
-    macro_scan_text = read_required_text(macro_input_path, "macro scan file")
+    system_prompt = read_required_text(prompt_path, "prompt file", AnthropicRunnerError)
+    sector_report_text = read_required_text(sector_input_path, "sector ranking report file", AnthropicRunnerError)
+    macro_scan_text = read_required_text(macro_input_path, "macro scan file", AnthropicRunnerError)
     user_message = build_user_message(
         sector_report_text=sector_report_text,
         macro_scan_text=macro_scan_text,
@@ -388,7 +244,7 @@ def main() -> None:
         )
         return
 
-    api_key = resolve_api_key(args.api_key)
+    api_key = resolve_api_key(args.api_key, ANTHROPIC_API_ENV_VAR, AnthropicRunnerError)
     client = anthropic.Anthropic(api_key=api_key)
 
     print(f"[universe-generation] Starting ({ANTHROPIC_MODEL_LABEL})", flush=True)
@@ -407,6 +263,7 @@ def main() -> None:
         max_retries=args.max_retries,
         base_delay=DEFAULT_RETRY_BASE_DELAY,
         max_delay=DEFAULT_RETRY_MAX_DELAY,
+        error_cls=AnthropicRunnerError,
     )
 
     print("\n", flush=True)
